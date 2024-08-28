@@ -18,6 +18,13 @@
 8. 支持任务饥饿值机制
 8. 支持 mbus 发布订阅机制
 10. 支持任务池机制
+11. 仅依赖 xf_utils ，支持 c99
+
+### 开源地址
+
+[github](https://github.com/x-eks-fusion/xf_task)
+
+[gitee](https://gitee.com/x-eks-fusion/xf_task)
 
 ### 文件夹介绍
 
