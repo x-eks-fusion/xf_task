@@ -60,6 +60,17 @@ typedef void (*xf_task_on_idle_t)(unsigned long int max_idle_ms);
 xf_task_manager_t xf_task_manager_create(xf_task_on_idle_t on_idle);
 
 /**
+ * @brief 设置 manager 的空闲回调函数
+ * 
+ * @param manager 任务管理器对象
+ * @param on_idle 空闲任务函数
+ * @return xf_err_t 
+ *      - XF_OK 设置成功
+ *      - XF_ERR_INVALID_ARG 参数错误
+ */
+xf_err_t xf_task_manager_set_idle(xf_task_manager_t manager, xf_task_on_idle_t on_idle);
+
+/**
  * @brief 开始启动任务管理器调度任务。
  *
  * @param manager 任务管理器对象。

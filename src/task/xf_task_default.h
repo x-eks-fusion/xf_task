@@ -44,6 +44,16 @@ extern "C" {
 xf_err_t xf_task_manager_default_init(xf_task_on_idle_t on_idle);
 
 /**
+ * @brief 设置默认任务管理器的空闲回调函数
+ * 
+ * @param on_idle 空闲回调函数
+ * @return xf_err_t 
+ *      - XF_OK 设置成功
+ *      - XF_ERR_INVALID_ARG 参数错误
+ */
+xf_err_t xf_task_manager_set_default_idle(xf_task_on_idle_t on_idle);
+
+/**
  * @brief 获取默认的任务管理器。
  *
  * @return xf_task_manager_t 任务管理器对象

@@ -73,6 +73,16 @@ xf_task_manager_t xf_task_manager_create(xf_task_on_idle_t on_idle)
     return (xf_task_manager_t)manager;
 }
 
+xf_err_t xf_task_manager_set_idle(xf_task_manager_t manager, xf_task_on_idle_t on_idle)
+{
+    XF_ASSERT(manager, XF_ERR_INVALID_ARG, TAG, "manager must not be NULL!");
+    XF_ASSERT(on_idle, XF_ERR_INVALID_ARG, TAG, "on_idle must not be NULL!");
+
+    xf_task_manager_handle_t *manager_handle = (xf_task_manager_handle_t *)manager;
+    manager_handle->on_idle = on_idle;
+    return XF_OK;
+}
+
 void xf_task_manager_delete(xf_task_manager_t manager)
 {
     XF_ASSERT(manager, XF_RETURN_VOID, TAG, "manager must not be NULL!");
