@@ -85,7 +85,7 @@ typedef void (*xf_task_swap_context_t)(xf_task_manager_t manager, void *old_cont
  *      - XF_ERR_INVALID_ARG 参数错误
  *      - XF_OK 参数设置成功
  */
-xf_err_t xf_task_tick_init(unsigned long int clock_per_sec, xf_task_clock_t clock);
+xf_err_t xf_task_tick_init(xf_task_clock_t clock);
 
 #if XF_TASK_CONTEXT_IS_ENABLE
 /**

@@ -215,7 +215,7 @@ typedef struct _xf_ctask_handle_t {
 ```c
 int main(void)
 {
-    xf_task_tick_init(1000, task_get_tick);
+    xf_task_tick_init(task_get_tick);
 
     xf_task_manager_default_init(task_on_idle);
 
@@ -235,7 +235,7 @@ static xf_task_manager_t s_thread2_manager;
 
 int thread1(void *arg)
 {
-    xf_task_tick_init(1000, task_get_tick);
+    xf_task_tick_init(task_get_tick);
 
     s_thread1_manager = xf_task_manager_create(task_on_idle);
     
@@ -248,7 +248,7 @@ int thread1(void *arg)
 
 int thread2(void *arg)
 {
-    xf_task_tick_init(1000, task_get_tick);
+    xf_task_tick_init(task_get_tick);
 
     s_thread2_manager = xf_task_manager_create(task_on_idle);
 

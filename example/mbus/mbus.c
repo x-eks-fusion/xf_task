@@ -41,7 +41,7 @@ void bus_cb(const void *const data, void *user_data)
 int main()
 {
     // 定时器对接
-    xf_task_tick_init(1000, task_get_tick);
+    xf_task_tick_init(task_get_tick);
 
     // 任务管理器初始化
     xf_task_manager_default_init(task_on_idle);

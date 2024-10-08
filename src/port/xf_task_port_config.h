@@ -22,6 +22,10 @@ extern "C" {
 
 /* ==================== [Defines] =========================================== */
 
+#ifndef XF_TASK_TICKS_FREQUENCY
+#   define XF_TASK_TICKS_FREQUENCY 1000
+#endif
+
 /**
  * @brief 如果开启上下文， 旧必须设置 XF_TASK_CONTEXT_TYPE 的类型。
  */

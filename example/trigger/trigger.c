@@ -29,7 +29,7 @@ static void ntask(xf_task_t task)
 int main()
 {
     // 对接时间戳
-    xf_task_tick_init(1000, task_get_tick);
+    xf_task_tick_init(task_get_tick);
     // 对接上下文
     xf_task_context_init(create_context, swap_context);
     // 初始化默认任务管理器
