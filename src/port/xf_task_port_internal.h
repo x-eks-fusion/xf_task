@@ -37,8 +37,6 @@ xf_task_context_t *xf_task_manager_get_context(xf_task_manager_t manager);
 
 int32_t xf_task_msec_to_ticks(int32_t msec);
 int32_t xf_task_ticks_to_msec(int32_t ticks);
-int32_t xf_task_sec_to_ticks(int32_t sec);
-int32_t xf_task_ticks_to_sec(int32_t ticks);
 
 /* ==================== [Macros] ============================================ */
 

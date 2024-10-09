@@ -73,9 +73,8 @@ typedef enum _xf_task_type_t {
  * @param config 任务配置结构体，根据不同类型任务不同配置。
  * @return xf_task_t 任务对象，返回为 NULL 则创建失败
  */
-xf_task_t xf_task_create_with_manager(
-    xf_task_manager_t manager, xf_task_type_t type, xf_task_func_t func,
-    void *func_arg, uint16_t priority, void *config);
+xf_task_t xf_task_create_with_manager(xf_task_manager_t manager, xf_task_type_t type, xf_task_func_t func,
+                                      void *func_arg, uint16_t priority, void *config);
 
 /**
  * @brief 任务删除函数。将任务加入销毁队列，并设置任务为删除态。

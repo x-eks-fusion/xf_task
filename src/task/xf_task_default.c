@@ -38,6 +38,11 @@ xf_err_t xf_task_manager_default_init(xf_task_on_idle_t on_idle)
     return XF_OK;
 }
 
+xf_err_t xf_task_manager_set_default_idle(xf_task_on_idle_t on_idle)
+{
+    return xf_task_manager_set_idle(default_manager, on_idle); 
+}
+
 xf_task_manager_t xf_task_get_default_manager(void)
 {
     return default_manager;

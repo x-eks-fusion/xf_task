@@ -26,7 +26,7 @@ xf_task_t *t3;
 int main()
 {
     // 对接时间戳
-    xf_task_tick_init(1000, task_get_tick);
+    xf_task_tick_init(task_get_tick);
     // 初始化默认任务管理器
     xf_task_manager_default_init(task_on_idle);
 
@@ -39,7 +39,10 @@ int main()
     xf_task_feel_hungery_enable(t3, 1000);
 
     // 启动任务管理器
-    xf_task_manager_run_default();
+    while (1)
+    {
+        xf_task_manager_run_default();
+    }
 
     return 0;
 }
