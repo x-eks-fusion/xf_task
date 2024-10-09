@@ -43,6 +43,7 @@ add_target("trigger")
 add_target("mbus")
 add_target("ntask2")
 add_target("task_pool")
+add_target("test")
 
 
 

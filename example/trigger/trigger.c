@@ -42,7 +42,10 @@ int main()
     xf_ntask_create_loop(trigger, (void *)3, 1, 2000);
 
     // 启动任务管理器
-    xf_task_manager_run_default();
+    while (1)
+    {
+        xf_task_manager_run_default();
+    }
 
     return 0;
 }

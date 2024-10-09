@@ -64,7 +64,10 @@ int main()
     xf_task_init_from_pool(cpool, ctask, (void *)1, 1);
 
     // 启动任务管理器
-    xf_task_manager_run_default();
+    while (1)
+    {
+        xf_task_manager_run_default();
+    }
 
     return 0;
 }

@@ -55,7 +55,10 @@ int main()
 
     xf_ntask_create_loop(mbus_handle, NULL, 0, 10);
     // 任务管理器，启动
-    xf_task_manager_run_default();
+    while (1)
+    {
+        xf_task_manager_run_default();
+    }
 
     return 0;
 }
