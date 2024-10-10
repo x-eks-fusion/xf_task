@@ -230,6 +230,7 @@ void *xf_ntask_get_hook_ptr(xf_task_t task);
     do                                              \
     {                                               \
         xf_ntask_set_lc(__xf_now_task, __LINE__);   \
+    /* FALLTHRU */                                  \
     case __LINE__:                                  \
         if (!(condition))                           \
         {                                           \
@@ -279,6 +280,7 @@ void *xf_ntask_get_hook_ptr(xf_task_t task);
     {                                               \
         __xf_task_yield_flag = 0;                   \
         xf_ntask_set_lc(__xf_now_task, __LINE__);   \
+    /* FALLTHRU */                                  \
     case __LINE__:                                  \
         if (__xf_task_yield_flag == 0)              \
         {                                           \
@@ -299,6 +301,7 @@ void *xf_ntask_get_hook_ptr(xf_task_t task);
     {                                               \
         __xf_task_yield_flag = 0;                   \
         xf_ntask_set_lc(__xf_now_task, __LINE__);   \
+    /* FALLTHRU */                                  \
     case __LINE__:                                  \
         if ((__xf_task_yield_flag == 0) || !(cond)) \
         {                                           \
