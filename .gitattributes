@@ -1,0 +1,4 @@
+# 忽略特定文件夹, 防止统计进 Languages 中
+/port/asm/* linguist-vendored
+
+

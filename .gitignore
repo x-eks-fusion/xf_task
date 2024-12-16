@@ -1,0 +1,44 @@
+
+*.hex
+*.map
+*.lst
+*.scvd
+*.uvoptx
+*.uvguix.*
+*.emProject
+*.emSession
+.vscode
+.vs
+*.o
+*.d
+*.exe
+
+# Forder
+Objects
+build
+DebugConfig
+Listings
+Output
+Debug
+Exe
+Obj
+cmake-build-debug
+CubeMx
+
+# File
+JLinkLog.txt
+setting.ini
+.sconsign.dblite
+kconfig-mconf
+
+# vscode
+.vscode
+*.code-workspace
+
+temp
+
+__pycache__
+
+.xmake
+.vscode
+xf_utils/
