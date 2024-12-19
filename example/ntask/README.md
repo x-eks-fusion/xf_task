@@ -2,7 +2,6 @@
 
 本例程主要展示无上下文的 ntask 如何使用。
 
-例程共两个任务。一个任务每隔 1s 打印一次，总共打印五次。另一个任务每隔 2s 打印一次，一直循环。
 
 # 如何使用该例程
 
@@ -25,12 +24,13 @@ xmake r ntask
 task:1
 task:2
 task:1
+task:2
 task:1
 task:2
 task:1
+task:2
 task:1
-D-task_base[:138(xf_task_destructor)]: task was delete
 task:2
-task:2
+task:1
 ...
 ```

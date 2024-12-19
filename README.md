@@ -35,8 +35,8 @@
 │  ├── ctask_queue      # 使用 ctask 专属超时消息队列例程
 │  ├── hunger           # 任务饥饿值例程
 │  ├── mbus             # mbus 消息发布订阅例程
-│  ├── ttask            # 基础 ttask 例程
-│  ├── ttask2           # ttask 无栈协程例程
+│  ├── ttask            # 基础 ttask 定时器任务例程
+│  ├── ntask            # ntask 无栈协程例程
 │  ├── priority         # 优先级例程
 │  ├── task             # ctask ttask混用例程
 │  ├── task_pool        # 任务池例程
@@ -189,9 +189,6 @@ typedef struct _xf_task_base_t {
 **ttask 对象**：继承于 task_base 对象。
 除了这个对象之外，还需要实现一个注册函数 void xf_xxx_vfunc_register(void) 。
 这里会通过 task 注册表 xf_task_reg.inc 自动生成。注册需要对接父函数的虚函数。
-无栈协程实现，借鉴了 [protothread](https://dunkels.com/adam/pt/) 的实现。
-通过 switch case 的封装实现了循环以及 delay 的功能。
-比较可惜的是，这种实现方式的宏无法被别的函数调用。只能用于无栈协程函数。
 
 ```c
 typedef struct _xf_ttask_handle_t {
@@ -199,6 +196,24 @@ typedef struct _xf_ttask_handle_t {
     uint32_t count;         /*!< 记录 ttask 剩余循环次数 */
     uint32_t count_max;     /*!< 记录 ttask 循环次数上限 */
 } xf_ttask_handle_t;
+```
+
+
+**ntask 对象**：继承于 task_base 对象。
+除了这个对象之外，还需要实现一个注册函数 void xf_xxx_vfunc_register(void) 。
+这里会通过 task 注册表 xf_task_reg.inc 自动生成。注册需要对接父函数的虚函数。
+无栈协程实现，借鉴了 [protothread](https://dunkels.com/adam/pt/) 的实现。
+通过 switch case 的封装实现了循环以及 delay 的功能。
+比较可惜的是，这种实现方式的宏无法被别的函数调用。只能用于无栈协程函数。
+
+```c
+typedef struct _xf_ntask_handle_t {
+    xf_task_base_t base;                /*!< 继承父对象 */
+    xf_ntask_compare_func_t compare;    /*!< 直到这个函数返回 0，会通过事件信号触发调度 */
+    xf_ntask_status_t status;           /*!< 记录 ntask 退出状态 */
+    xf_list_t lc_list;                  /*!< 记录 ntask 上下文 */
+    xf_list_t args_list;                /*!< 参数收集器 */
+} xf_ntask_handle_t;
 ```
 
 **ctask 对象**：继承于 task_base 对象。相比无栈协程，该对象需要对接保存上下文和切换上下文的函数。而且用户需要提供 XF_TASK_CONTEXT_TYPE 上下文的对象类型。当然如果你觉得移植困难，可以通过配置文件屏蔽 ctask 只用 ttask 。

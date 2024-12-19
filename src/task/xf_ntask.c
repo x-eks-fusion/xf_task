@@ -38,11 +38,11 @@ typedef struct _xf_ntask_lc_t {
 } xf_ntask_lc_t;
 
 typedef struct _xf_ntask_handle_t {
-    xf_task_base_t base;    /*!< 继承父对象 */
-    xf_ntask_compare_func_t compare;
-    xf_ntask_status_t status;
-    xf_list_t lc_list;
-    xf_list_t args_list;
+    xf_task_base_t base;                /*!< 继承父对象 */
+    xf_ntask_compare_func_t compare;    /*!< 直到这个函数返回 0，会通过事件信号触发调度 */
+    xf_ntask_status_t status;           /*!< 记录 ntask 退出状态 */
+    xf_list_t lc_list;                  /*!< 记录 ntask 上下文 */
+    xf_list_t args_list;                /*!< 参数收集器 */
 } xf_ntask_handle_t;
 
 /* ==================== [Static Prototypes] ================================= */
@@ -214,14 +214,14 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name)
 
 }
 
-xf_ntask_status_t xf_ntask_get_status(xf_task_t *task)
+xf_ntask_status_t xf_ntask_get_exit_status(xf_task_t *task)
 {
     xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
 
     return handle->status;
 }
 
-xf_err_t xf_ntask_set_status(xf_task_t *task, xf_ntask_status_t status)
+xf_err_t xf_ntask_set_exit_status(xf_task_t *task, xf_ntask_status_t status)
 {
     xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
 
