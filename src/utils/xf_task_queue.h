@@ -17,8 +17,8 @@
 #include "xf_utils.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_task_queue task_queue
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_task_queue task_queue
  * @brief 队列。
  * @{
  */
@@ -28,7 +28,6 @@ extern "C" {
 #endif
 
 /* ==================== [Defines] =========================================== */
-
 
 /* ==================== [Typedefs] ========================================== */
 
@@ -163,7 +162,7 @@ xf_err_t xf_task_queue_receive(xf_task_queue_t *const queue, void *const buffer)
 #endif
 
 /**
- * End of group_xf_task_user_task_queue
+ * End of group_xf_task_task_queue
  * @}
  */
 

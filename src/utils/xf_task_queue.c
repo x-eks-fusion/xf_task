@@ -45,12 +45,10 @@ xf_err_t xf_task_queue_init(xf_task_queue_t *const queue, void *data, const size
     queue->head = (uint8_t *)data;
 
     xf_err_t res = xf_task_queue_reset(queue);
-    if (res != XF_OK)
-    {
+    if (res != XF_OK) {
         XF_LOGE(TAG, "queue reset failed");
         return res;
     }
-    
 
     return XF_OK;
 }

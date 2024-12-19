@@ -17,9 +17,11 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_ntask ntask
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_ntask ntask
  * @brief 无栈协程。
+ * @endcond
  * @{
  */
 
@@ -346,7 +348,7 @@ void *xf_ntask_get_hook_ptr(xf_task_t task);
 #endif
 
 /**
- * End of group_xf_task_user_ntask
+ * End of group_xf_task_ntask
  * @}
  */
 

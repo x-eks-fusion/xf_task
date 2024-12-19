@@ -39,7 +39,6 @@ typedef struct _xf_task_manager_handle_t {
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 } xf_task_manager_handle_t;
 
-
 /* ==================== [Static Prototypes] ================================= */
 
 static inline void xf_task_run(xf_task_base_t *task);
@@ -275,7 +274,6 @@ xf_task_context_t *xf_task_manager_get_context(xf_task_manager_t manager)
 }
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
-
 xf_err_t xf_task_set_urgent_task_with_manager(xf_task_manager_t manager, xf_task_t task, bool force)
 {
     XF_ASSERT(manager, XF_ERR_INVALID_ARG, TAG, "manager must not be NULL");
@@ -294,7 +292,6 @@ xf_err_t xf_task_set_urgent_task_with_manager(xf_task_manager_t manager, xf_task
 }
 
 /* ==================== [Static Functions] ================================== */
-
 
 static inline void xf_task_run(xf_task_base_t *task)
 {

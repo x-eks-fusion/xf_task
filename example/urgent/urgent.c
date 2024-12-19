@@ -39,8 +39,7 @@ int main()
     xf_task_set_urgent_task(task, false);
 
     // 启动任务管理器
-    while (1)
-    {
+    while (1) {
         xf_task_manager_run_default();
     }
 

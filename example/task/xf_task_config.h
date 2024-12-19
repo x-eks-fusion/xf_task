@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-
-
 #define XF_TASK_CONTEXT_DISABLE 0
 
 #define XF_TASK_HUNGER_ENABLE 0
@@ -33,7 +31,6 @@ extern "C" {
 #else
 #define XF_TASK_CONTEXT_TYPE void*
 #endif
-
 
 #ifdef __cplusplus
 } /* extern "C" */

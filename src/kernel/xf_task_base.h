@@ -18,9 +18,11 @@
 #include "xf_task_kernel.h"
 
 /**
+ * @cond XFAPI_INTERNAL
  * @ingroup group_xf_task_internal
  * @defgroup group_xf_task_internal_base base
  * @brief 任务父对象。
+ * @endcond
  * @{
  */
 
@@ -41,7 +43,7 @@ extern "C" {
 #define XF_TASK_SIGNAL_RESUME           (1UL << 3)  /*!< 恢复信号，通知任务从挂起状态被恢复 */
 /**
  * End of XF_TASK_SIGNAL
- * @} 
+ * @}
  */
 
 /**

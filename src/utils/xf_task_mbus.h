@@ -21,8 +21,8 @@
 #include "xf_utils.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_mbus mbus
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_mbus mbus
  * @brief 消息总线（发布订阅）。
  * @{
  */
@@ -127,7 +127,7 @@ xf_err_t xf_task_mbus_unsub_all(uint32_t topic_id);
 
 /**
  * @brief 处理异步的消息。
- * 
+ *
  * @note 给异步订阅使用的，需要循环调用。
  */
 void xf_task_mbus_handle(void);
@@ -139,7 +139,7 @@ void xf_task_mbus_handle(void);
 #endif
 
 /**
- * End of group_xf_task_user_mbus
+ * End of group_xf_task_mbus
  * @}
  */
 

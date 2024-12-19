@@ -164,7 +164,6 @@ static xf_task_t xf_ntask_constructor(xf_task_manager_t manager, xf_task_func_t 
         return NULL;
     }
 
-
     xf_ntask_config_t *ntask_config = config;
 
     uint32_t ticks = xf_task_msec_to_ticks(ntask_config->delay_ms);
@@ -248,4 +247,3 @@ static void xf_ntask_exec(xf_task_manager_t manager)
         task->base.weakup = xf_task_get_ticks() + task->base.delay;
     }
 }
-

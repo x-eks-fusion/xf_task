@@ -18,9 +18,11 @@
 #include "xf_utils.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_manager manager
+ * @cond XFAPI_INTERNAL
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_manager manager
  * @brief xf_task 任务管理器。
+ * @endcond
  * @{
  */
 
@@ -44,7 +46,7 @@ typedef void *xf_task_manager_t;
 
 /**
  * @brief 空闲任务回调函数原型。
- * 
+ *
  * @param max_idle_ms 空闲(睡眠)时间。
  */
 typedef void (*xf_task_on_idle_t)(unsigned long int max_idle_ms);
@@ -61,10 +63,10 @@ xf_task_manager_t xf_task_manager_create(xf_task_on_idle_t on_idle);
 
 /**
  * @brief 设置 manager 的空闲回调函数
- * 
+ *
  * @param manager 任务管理器对象
  * @param on_idle 空闲任务函数
- * @return xf_err_t 
+ * @return xf_err_t
  *      - XF_OK 设置成功
  *      - XF_ERR_INVALID_ARG 参数错误
  */
@@ -149,7 +151,7 @@ xf_err_t xf_task_manager_task_blocked(xf_task_manager_t manager, xf_task_t task)
 #endif
 
 /**
- * End of group_xf_task_user_manager
+ * End of group_xf_task_manager
  * @}
  */
 

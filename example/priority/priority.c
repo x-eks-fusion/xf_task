@@ -36,8 +36,7 @@ int main()
     xf_ntask_create_loop(task3, (void *)2, 2, 100);
 
     // 启动任务管理器
-    while (1)
-    {
+    while (1) {
         xf_task_manager_run_default();
     }
 

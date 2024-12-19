@@ -15,7 +15,6 @@
 #include "../port/xf_task_port_internal.h"
 #include "../kernel/xf_task_base.h"
 
-
 #if XF_TASK_CONTEXT_IS_ENABLE
 
 /* ==================== [Defines] =========================================== */
@@ -78,7 +77,6 @@ void xf_ctask_delay_with_manager(xf_task_manager_t manager, uint32_t delay_ms)
         XF_LOGE(TAG, "only ctask can use this function");
         return;
     }
-
 
     int32_t ticks = xf_task_msec_to_ticks(delay_ms);
 
@@ -247,10 +245,8 @@ static xf_task_t xf_ctask_constructor(xf_task_manager_t manager, xf_task_func_t 
 
     xf_list_init(&task->queue_node);
 
-
     return (xf_task_t)task;
 }
-
 
 static xf_task_time_t xf_ctask_update(xf_task_t task)
 {

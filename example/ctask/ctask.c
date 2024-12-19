@@ -2,7 +2,6 @@
 #include "port.h"
 #include <stdio.h>
 
-
 static void task1(xf_task_t task)
 {
     // 获取任务参数
@@ -21,7 +20,6 @@ static void task2(xf_task_t task)
     xf_ctask_delay(num * 1000);
 }
 
-
 int main()
 {
     // 对接上下文
@@ -38,11 +36,9 @@ int main()
     xf_ctask_create(task2, (void *)3, 1, 1024 * 8);
 
     // 启动任务管理器
-    while (1)
-    {
+    while (1) {
         xf_task_manager_run_default();
     }
-    
 
     return 0;
 }

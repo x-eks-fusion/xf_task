@@ -12,32 +12,29 @@
  */
 
 /**
+ * @cond (XFAPI_USER || XFAPI_PORT || XFAPI_INTERNAL)
  * @defgroup group_xf_task xf_task
  * @brief 提供基于有栈协程或者无栈协程的多任务支持。
+ * @endcond
  */
 
 /**
+ * @cond XFAPI_PORT
  * @ingroup group_xf_task
- * @defgroup group_xf_task_user 用户接口
- * @brief 调用具体功能的接口。如创建任务、发布订阅、任务池等。
- *
- * xfusion 用户使用 xf_task 时只需 `#include "xf_task.h"` 即可。
- *
- */
-
-/**
- * @ingroup group_xf_task
- * @defgroup group_xf_task_port 移植接口
+ * @defgroup group_xf_task_port porting
  * @brief 用于对接 xf_task 的接口。
  *
  * 对接 xf_task 时同样只需 `#include "xf_task.h"` 即可。
  *
+ * @endcond
  */
 
 /**
+ * @cond XFAPI_INTERNAL
  * @ingroup group_xf_task
- * @defgroup group_xf_task_internal 内部接口
- * @brief 组件内部实现某些功能时定义的接口。用户不一定需要。
+ * @defgroup group_xf_task_internal internal
+ * @brief 组件内部实现某些功能时定义的接口。
+ * @endcond
  */
 
 #ifndef __XF_TASK_H__
@@ -65,10 +62,12 @@ extern "C" {
 
 /* ==================== [Global Prototypes] ================================= */
 
-#if XF_TASK_CONTEXT_IS_ENABLE
+#if XF_TASK_CONTEXT_IS_ENABLE || defined(__DOXYGEN__)
 
 /**
- * @ingroup group_xf_task_user_ctask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ctask
+ * @endcond
  * @{
  */
 
@@ -118,14 +117,16 @@ xf_ctask_queue_t xf_ctask_queue_create(const size_t size, const size_t count)
 }
 
 /**
- * End of group_xf_task_user_ctask
+ * End of addtogroup group_xf_task_ctask
  * @}
  */
 
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @ingroup group_xf_task_user_ntask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ntask
+ * @endcond
  * @{
  */
 
@@ -165,16 +166,18 @@ xf_task_t xf_ntask_create_loop(xf_task_func_t func, void *func_arg, uint16_t pri
 }
 
 /**
- * End of group_xf_task_user_ntask
+ * End of addtogroup group_xf_task_ntask
  * @}
  */
 
-#if XF_TASK_POOL_IS_ENABLE
+#if XF_TASK_POOL_IS_ENABLE || defined(__DOXYGEN__)
 
-#if XF_TASK_CONTEXT_IS_ENABLE
+#if XF_TASK_CONTEXT_IS_ENABLE || defined(__DOXYGEN__)
 
 /**
- * @ingroup group_xf_task_user_ctask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ctask
+ * @endcond
  * @{
  */
 
@@ -187,7 +190,7 @@ xf_task_t xf_ntask_create_loop(xf_task_func_t func, void *func_arg, uint16_t pri
  * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
  */
 static inline xf_task_pool_t xf_ctask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager,
-    size_t stack_size)
+        size_t stack_size)
 {
     xf_ctask_config_t config = {.stack_size = stack_size};
     return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_ctask, &config);
@@ -207,14 +210,16 @@ static inline xf_task_pool_t xf_ctask_pool_create(uint32_t max_works, size_t sta
 }
 
 /**
- * End of group_xf_task_user_ctask
+ * End of addtogroup group_xf_task_ctask
  * @}
  */
 
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @ingroup group_xf_task_user_ntask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ntask
+ * @endcond
  * @{
  */
 
@@ -228,7 +233,7 @@ static inline xf_task_pool_t xf_ctask_pool_create(uint32_t max_works, size_t sta
  * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
  */
 static inline xf_task_pool_t xf_ntask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager,
-    uint32_t delay_ms, uint32_t count)
+        uint32_t delay_ms, uint32_t count)
 {
     xf_ntask_config_t config = {.count = count, .delay_ms = delay_ms};
     return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_NTASK, &config);
@@ -249,7 +254,7 @@ static inline xf_task_pool_t xf_ntask_pool_create(uint32_t max_works, uint32_t d
 }
 
 /**
- * End of group_xf_task_user_ntask
+ * End of addtogroup group_xf_task_ntask
  * @}
  */
 
