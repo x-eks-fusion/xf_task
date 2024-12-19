@@ -1,7 +1,7 @@
 /**
  * @file xf_ttask.h
  * @author cangyu (sky.kirto@qq.com)
- * @brief 无栈协程。
+ * @brief 定时器任务。
  * @version 0.1
  * @date 2024-02-29
  *
@@ -19,7 +19,7 @@
 /**
  * @ingroup group_xf_task_user
  * @defgroup group_xf_task_user_ttask ttask
- * @brief 无栈协程。
+ * @brief 定时器任务。
  * @{
  */
 
@@ -46,13 +46,6 @@ typedef struct _xf_ttask_config_t {
     uint32_t count;    /*!< ttask 循环次数 */
     uint32_t delay_ms; /*!< ttask 循环间隔时间 */
 } xf_ttask_config_t;
-
-/**
- * @brief ttask 信号量结构体。
- */
-typedef struct _xf_ttask_sem_t {
-    uint32_t count;
-} xf_ttask_sem_t;
 
 /* ==================== [Global Prototypes] ================================= */
 
@@ -122,6 +115,8 @@ uint32_t xf_ttask_get_count(xf_task_t task);
  *      - XF_OK 设置成功
  */
 xf_err_t xf_ttask_set_count_max(xf_task_t task, uint32_t count_max);
+
+/* ==================== [Macros] ============================================ */
 
 
 #ifdef __cplusplus

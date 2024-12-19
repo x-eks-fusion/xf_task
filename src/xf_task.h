@@ -50,6 +50,7 @@
 #include "kernel/xf_task_kernel.h"
 #include "task/xf_ctask.h"
 #include "task/xf_ttask.h"
+#include "task/xf_ntask.h"
 #include "task/xf_task_default.h"
 #include "utils/xf_task_mbus.h"
 #include "utils/xf_task_queue.h"
@@ -169,6 +170,13 @@ xf_task_t xf_ttask_create_loop(xf_task_func_t func, void *func_arg, uint16_t pri
  * @}
  */
 
+static inline
+xf_task_t xf_ntask_create(xf_task_func_t func, void *func_arg, uint16_t priority)
+{
+    return xf_task_create_with_manager(xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, func, func_arg, priority,
+                                       NULL);
+}
+
 #if XF_TASK_POOL_IS_ENABLE
 
 #if XF_TASK_CONTEXT_IS_ENABLE
@@ -187,7 +195,7 @@ xf_task_t xf_ttask_create_loop(xf_task_func_t func, void *func_arg, uint16_t pri
  * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
  */
 static inline xf_task_pool_t xf_ctask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager,
-    size_t stack_size)
+        size_t stack_size)
 {
     xf_ctask_config_t config = {.stack_size = stack_size};
     return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_ctask, &config);
@@ -228,7 +236,7 @@ static inline xf_task_pool_t xf_ctask_pool_create(uint32_t max_works, size_t sta
  * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
  */
 static inline xf_task_pool_t xf_ttask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager,
-    uint32_t delay_ms, uint32_t count)
+        uint32_t delay_ms, uint32_t count)
 {
     xf_ttask_config_t config = {.count = count, .delay_ms = delay_ms};
     return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_TTASK, &config);

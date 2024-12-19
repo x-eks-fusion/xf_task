@@ -33,6 +33,7 @@ function add_target(name)
 end 
 
 add_target("ctask")
+add_target("ntask")
 add_target("ttask")
 add_target("task")
 add_target("priority")
