@@ -50,6 +50,7 @@ static xf_list_t _topic_list = XF_LIST_HEAD_INIT(_topic_list);
 
 /* ==================== [Global Functions] ================================== */
 
+
 xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size)
 {
     XF_ASSERT(xf_task_mbus_find(topic_id, NULL), XF_ERR_INITED, TAG, "topic:%d is exists", (int)topic_id);
@@ -73,6 +74,7 @@ xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size)
     return XF_OK;
 }
 
+
 xf_err_t xf_task_mbus_unreg_topic(uint32_t topic_id)
 {
     xf_task_mtopic_t *mtopic = NULL;
@@ -93,6 +95,7 @@ xf_err_t xf_task_mbus_unreg_topic(uint32_t topic_id)
     return XF_OK;
 }
 
+
 xf_err_t xf_task_mbus_pub_async(uint32_t topic_id, void *data)
 {
     XF_ASSERT(data, XF_ERR_INVALID_ARG, TAG, "data must not be NULL");
@@ -107,6 +110,7 @@ xf_err_t xf_task_mbus_pub_async(uint32_t topic_id, void *data)
     xf_err_t err = xf_task_queue_send(&mtopic->pub_queue, data, XF_TASK_QUEUE_SEND_TO_BACK);
     return err;
 }
+
 
 xf_err_t xf_task_mbus_pub_sync(uint32_t topic_id, void *data)
 {

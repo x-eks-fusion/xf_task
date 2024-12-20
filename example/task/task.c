@@ -33,8 +33,8 @@ int main()
     // 创建任务
     xf_ctask_create(task1, (void *)1, 1, 1024 * 8);
     xf_ctask_create(task2, (void *)2, 1, 1024 * 8);
-    xf_ntask_create_loop(task2, (void *)3, 1, 100);
-    xf_ntask_create(task2, (void *)4, 1, 200, 5);
+    xf_ttask_create_loop(task2, (void *)3, 1, 100);
+    xf_ttask_create(task2, (void *)4, 1, 200, 5);
 
     // 启动任务管理器
     while (1) {

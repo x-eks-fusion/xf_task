@@ -3,7 +3,7 @@
  * @author cangyu (sky.kirto@qq.com)
  * @brief 无栈协程。
  * @version 0.1
- * @date 2024-02-29
+ * @date 2024-12-16
  *
  * @copyright Copyright (c) 2024, CorAL. All rights reserved.
  *
@@ -17,17 +17,14 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @cond XFAPI_USER
- * @ingroup group_xf_task
- * @defgroup group_xf_task_ntask ntask
+ * @ingroup group_xf_task_user
+ * @defgroup group_xf_task_user_ntask ntask
  * @brief 无栈协程。
- * @endcond
  * @{
  */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* ==================== [Defines] =========================================== */
@@ -37,17 +34,8 @@ extern "C"
  * `XF_TASK_TYPE_ntask` 通过 `xf_task_reg.inc` 拼接而来。
  */
 #define XF_TASK_TYPE_NTASK XF_TASK_TYPE_ntask
-#define XF_NTASK_INFINITE_LOOP ((uint32_t) - 1) /*!< ntask 无限循环 */
 
 /* ==================== [Typedefs] ========================================== */
-
-/**
- * @brief ntask 创建传输参数。
- */
-typedef struct _xf_ntask_config_t {
-    uint32_t count;    /*!< ntask 循环次数 */
-    uint32_t delay_ms; /*!< ntask 循环间隔时间 */
-} xf_ntask_config_t;
 
 /**
  * @brief ntask 信号量结构体。
@@ -56,300 +44,239 @@ typedef struct _xf_ntask_sem_t {
     uint32_t count;
 } xf_ntask_sem_t;
 
+typedef int(*xf_ntask_compare_func_t)(xf_task_t task);
+
+typedef enum _xf_ntask_status_t {
+    XF_NTASK_NONE = -1,
+    XF_NTASK_WAITING,
+    XF_NTASK_YIELDED,
+    XF_NTASK_EXITED,
+    XF_NTASK_ENDED,
+    XF_NTASK_FINSHED,
+} xf_ntask_status_t;
+
+
 /* ==================== [Global Prototypes] ================================= */
 
 /**
- * @brief 指定任务管理器创建 ntask。
+ * @brief 创建无栈协程
  *
- * @param manager 任务管理器对象。
- * @param func 任务执行的函数。
- * @param func_arg 用户自定义执行函数参数。
- * @param priority 任务优先级。
- * @param delay_ms 任务延时周期。
- * @param count 任务循环的次数上限。
- * @return xf_task_t task 对象。返回为 NULL 则表示创建失败
+ * @param manager 任务调度器
+ * @param func 任务执行函数
+ * @param func_arg 任务参数
+ * @param priority 任务优先级
+ * @return xf_task_t 任务对象，NULL 表示创建失败
  */
-static inline xf_task_t xf_ntask_create_with_manager(
-    xf_task_manager_t manager, xf_task_func_t func, void *func_arg,
-    uint16_t priority, uint32_t delay_ms, uint32_t count)
+static inline
+xf_task_t xf_ntask_create_with_manager(xf_task_manager_t manager, xf_task_func_t func, void *func_arg,
+                                       uint16_t priority)
 {
-    xf_ntask_config_t config = {.count = count, .delay_ms = delay_ms};
-    return xf_task_create_with_manager(manager, XF_TASK_TYPE_NTASK, func, func_arg, priority, &config);
+    return xf_task_create_with_manager(manager, XF_TASK_TYPE_NTASK, func, func_arg, priority, NULL);
 }
 
 /**
- * @brief 指定任务管理器创建循环 ntask。
+ * @brief 设置比较函数，回调函数返回 0，则任务继续进行，单次有效
  *
- * @param manager 任务管理器对象。
- * @param func 任务执行的函数。
- * @param func_arg 用户自定义执行函数参数。
- * @param priority 任务优先级。
- * @param delay_ms 任务延时周期。
- * @return xf_task_t task 对象。返回为 NULL 则表示创建失败
+ * @param task 任务对象
+ * @param compare 比较回调函数
  */
-static inline xf_task_t xf_ntask_create_loop_with_manager(
-    xf_task_manager_t manager, xf_task_func_t func,
-    void *func_arg, uint16_t priority, uint32_t delay_ms)
-{
-    xf_ntask_config_t config = {.count = XF_NTASK_INFINITE_LOOP, .delay_ms = delay_ms};
-    return xf_task_create_with_manager(manager, XF_TASK_TYPE_NTASK, func, func_arg, priority, &config);
-}
+void xf_ntask_set_compare(xf_task_t task, xf_ntask_compare_func_t compare);
 
 /**
- * @brief 设置 ntask 循环次数。其不能超过循环次数的上限。
+ * @brief 获取保存的整数变量
  *
- * @param task 任务对象。
- * @param count 循环次数。
- * @return xf_err_t
- *      - XF_ERR_INVALID_ARG 参数错误
- *      - XF_OK 设置成功
+ * @param task 任务对象
+ * @param name 整数变量名称
+ * @return int 获取到的整数变量
  */
-xf_err_t xf_ntask_set_count(xf_task_t task, uint32_t count);
+int xf_ntask_args_get_int(xf_task_t *task, const char *name);
 
 /**
- * @brief 获取 ntask 循环次数。
+ * @brief 获取保存的浮点变量
  *
- * @param task 任务对象。
- * @return uint32_t 循环次数
+ * @param task 任务对象
+ * @param name 浮点变量名称
+ * @return float 获取到的浮点变量
  */
-uint32_t xf_ntask_get_count(xf_task_t task);
+float xf_ntask_args_get_float(xf_task_t *task, const char *name);
 
 /**
- * @brief  ntask 循环次数加一。
+ * @brief 获取保存的数组
  *
- * @param task 任务对象。
- * @return xf_err_t
- *      - XF_ERR_INVALID_ARG 参数错误
- *      - XF_ERR_NOT_SUPPORTED 不支持无限循环
- *      - XF_OK 设置成功
+ * @param task 任务对象
+ * @param name 数组名称
+ * @return void* 数组地址
  */
-xf_err_t xf_ntask_count_add_once(xf_task_t task);
+void *xf_ntask_args_get_array(xf_task_t *task, const char *name);
 
 /**
- * @brief 设置 ntask 循环次数的上限。
+ * @brief 保存整数变量
  *
- * @param task 任务对象。
- * @param count_max 循环次数上限。
- * @return xf_err_t
- *      - XF_ERR_INVALID_ARG 参数错误
- *      - XF_OK 设置成功
+ * @param task 任务对象
+ * @param name 变量名称
+ * @param value 整数变量值
+ * @return xf_err_t 返回错误码
  */
-xf_err_t xf_ntask_set_count_max(xf_task_t task, uint32_t count_max);
+xf_err_t xf_ntask_args_set_int(xf_task_t *task, const char *name, int value);
 
 /**
- * @brief 设置 ntask 的上下文位置（无栈协程专属）。
+ * @brief 保存浮点变量
  *
- * @param task 任务对象。
- * @param lc 上下文位置。
- * @return xf_err_t
- *      - XF_ERR_INVALID_ARG 参数错误
- *      - XF_OK 设置成功
+ * @param task 任务对象
+ * @param name 变量名称
+ * @param value 浮点变量值
+ * @return xf_err_t 返回错误码
  */
-xf_err_t xf_ntask_set_lc(xf_task_t task, uint32_t lc);
+xf_err_t xf_ntask_args_set_float(xf_task_t *task, const char *name, float value);
 
 /**
- * @brief 获取 ntask 的上下文位置。
+ * @brief 保存数组
  *
- * @note 该函数属于无栈协程专属。
+ * @param task 任务对象
+ * @param name 数组变量名称
+ * @param value 数组变量值
+ * @param size 数组元素大小
+ * @param len 数组元素个数
+ * @return xf_err_t 返回错误码
+ */
+xf_err_t xf_ntask_args_set_array(xf_task_t *task, const char *name, void *value, unsigned int size, unsigned int len);
+
+/**
+ * @brief 获取上下文位置 （给宏调用）
  *
- * @param task 任务对象。
+ * @param task 任务对象
+ * @param name 函数上下文名称
  * @return uint32_t 上下文位置
  */
-uint32_t xf_ntask_get_lc(xf_task_t task);
+uint32_t xf_ntask_get_lc(xf_task_t *task, const char *name);
 
 /**
- * @brief 设置 ntask 的钩子指针。
+ * @brief 设置上下文位置 （给宏调用）
  *
- * @note 该函数属于无栈协程专属，用于保存临时变量。
- *
- * @param task 任务对象。
- * @param ptr_hook 钩子指针，用于保存当前的指针，方便无栈协程下次访问。
- * @return xf_err_t
- *      - XF_ERR_INVALID_ARG 参数错误
- *      - XF_OK 设置成功
+ * @param task 任务对象
+ * @param name 函数上下文名称
+ * @param lc 上下文位置
+ * @return xf_err_t 上下文位置
  */
-xf_err_t xf_ntask_set_hook_ptr(xf_task_t task, void *ptr_hook);
+xf_err_t xf_ntask_set_lc(xf_task_t *task, const char *name, uint32_t lc);
 
 /**
- * @brief 获取 ntask 的钩子指针。
+ * @brief 获取退出状态 （给宏调用）
  *
- * @note 该函数属于无栈协程专属，用于保存临时变量。
- *
- * @param task 任务对象。
- * @return void* 钩子指针
+ * @param task 任务对象
+ * @return xf_ntask_status_t 任务退出状态
  */
-void *xf_ntask_get_hook_ptr(xf_task_t task);
+xf_ntask_status_t xf_ntask_get_exit_status(xf_task_t *task);
+
+/**
+ * @brief 设置退出状态 （给宏调用）
+ *
+ * @param task 任务对象
+ * @param status 任务退出状态
+ * @return xf_err_t 是否设置成功
+ */
+xf_err_t xf_ntask_set_exit_status(xf_task_t *task, xf_ntask_status_t status);
+
+/**
+ * @brief 获取是否是最外层函数
+ *
+ * @param task 任务对象
+ * @param name 任务上下文名称
+ * @return true 是最外层函数
+ * @return false 不是最外层函数
+ */
+bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
 
 /* ==================== [Macros] ============================================ */
 
-/**
- * @brief 无栈协程延时。
- *
- * @attention 这里延时只能放在无栈协程内，不可被函数调用，否则无法正常延时。
- *
- * @param delay_ms  延时的时间，单位为毫秒。
- */
-#define xf_ntask_delay(delay_ms)                    \
-    do                                              \
-    {                                               \
-        xf_task_set_delay(__xf_now_task, delay_ms); \
-        XF_NTASK_YIELD();                           \
-    } while (0)
-
-/**
- * @brief 无栈协程的开始，当它出现表示后续内容为无栈协程内容。
- *
- * @note 需要搭配 XF_NTASK_END(ntask) 使用，否则会报错。
- *
- * @param ntask 当前的 ntask 任务。
- */
-#define XF_NTASK_BEGIN(ntask)               \
-    char __xf_task_yield_flag = 1;          \
-    UNUSED(__xf_task_yield_flag);           \
-    xf_task_t __xf_now_task = ntask;        \
-    switch (xf_ntask_get_lc(__xf_now_task)) \
-    {                                       \
+#define XF_NTASK_BEGIN(ntask)       \
+    switch (xf_ntask_get_lc(ntask, __func__)) \
+    {                               \
     case 0:
 
-/**
- * @brief 无栈协程的结束，当它出现表示结束无栈协程。
- *
- * @note 需要搭配 XF_NTASK_BEGIN(ntask) 使用，否则会报错。
- */
-#define XF_NTASK_END()                 \
-    }                                  \
-    __xf_task_yield_flag = 0;          \
-    xf_ntask_set_lc(__xf_now_task, 0); \
-    xf_task_delete(__xf_now_task);     \
-    return;
+#define XF_NTASK_END(ntask)    \
+    }                          \
+    xf_ntask_set_lc(ntask, __func__, 0); \
+    if(xf_ntask_lc_is_first(ntask, __func__)) { \
+        xf_ntask_set_exit_status(ntask, XF_NTASK_FINSHED); \
+    } else {                    \
+        xf_ntask_set_exit_status(ntask, XF_NTASK_ENDED); \
+    }\
+    return
 
-/**
- * @brief 无栈协程的等待，直到条件满足，才能执行后续内容。
- *
- * @param condition 等待条件，不满足则一直等待。
- */
-#define XF_NTASK_WAIT_UNTIL(condition)              \
-    do                                              \
-    {                                               \
-        xf_ntask_set_lc(__xf_now_task, __LINE__);   \
-    /* FALLTHRU */                                  \
-    case __LINE__:                                  \
-        if (!(condition))                           \
-        {                                           \
-            xf_ntask_count_add_once(__xf_now_task); \
-            return;                                 \
-        }                                           \
+#define xf_ntask_yield(ntask)               \
+    do                                      \
+    {                                       \
+        xf_task_trigger(ntask);             \
+        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(ntask, XF_NTASK_YIELDED); \
+        return;                             \
+    case __LINE__:                          \
     } while (0)
 
-/**
- * @brief 无栈协程的等待，直到条件不满足，才能执行后续内容。
- *
- * @param cond 等待条件，满足则一直等待。
- */
-#define XF_NTASK_WHILE(cond) XF_NTASK_UNTIL(!(cond))
-
-/**
- * @brief 当前无栈协程重启。
- *
- */
-#define XF_NTASK_RESTART()                      \
-    do                                          \
-    {                                           \
-        xf_ntask_set_lc(__xf_now_task, 0);      \
-        xf_ntask_count_add_once(__xf_now_task); \
-        return;                                 \
+#define xf_ntask_until(ntask, compare_cb)             \
+    do                                      \
+    {                                       \
+        xf_ntask_set_compare(ntask, compare_cb);      \
+        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(ntask, XF_NTASK_WAITING); \
+        return;                             \
+    case __LINE__:                          \
     } while (0)
 
-/**
- * @brief 强行退出并删除当前无栈协程（无视循环次数）。
- *
- */
-#define XF_NTASK_EXIT()                    \
-    do                                     \
-    {                                      \
-        xf_ntask_set_lc(__xf_now_task, 0); \
-        xf_task_delete(__xf_now_task);     \
-        return;                            \
+#define xf_ntask_delay(ntask, delay_ms)     \
+    do                                      \
+    {                                       \
+        xf_task_set_delay(ntask, delay_ms); \
+        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(ntask, XF_NTASK_WAITING); \
+        return;                             \
+    case __LINE__:                          \
     } while (0)
 
-/**
- * @brief 无栈协程让出 CPU 执行权，进入调度器。
- *
- * @note 下次进入的时候还从这里继续执行。
- */
-#define XF_NTASK_YIELD()                            \
-    do                                              \
-    {                                               \
-        __xf_task_yield_flag = 0;                   \
-        xf_ntask_set_lc(__xf_now_task, __LINE__);   \
-    /* FALLTHRU */                                  \
-    case __LINE__:                                  \
-        if (__xf_task_yield_flag == 0)              \
-        {                                           \
-            xf_ntask_count_add_once(__xf_now_task); \
-            return;                                 \
-        }                                           \
+#define xf_ntask_until_timeout(ntask, compare_cb, timeout_ms) \
+    do                                      \
+    {                                       \
+        xf_task_set_delay(ntask, timeout_ms); \
+        xf_ntask_set_compare(ntask, compare_cb);      \
+        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(ntask, XF_NTASK_WAITING); \
+        return;                             \
+    case __LINE__:                          \
     } while (0)
 
-/**
- * @brief 无栈协程让出 CPU 执行权，进入调度器，直到条件满足。
- *
- * @note 下次进入的时候还从这里继续执行。
- *
- * @param cond 条件判断，不满足就一直让出 CPU 。
- */
-#define XF_NTASK_YIELD_UNTIL(cond)                  \
-    do                                              \
-    {                                               \
-        __xf_task_yield_flag = 0;                   \
-        xf_ntask_set_lc(__xf_now_task, __LINE__);   \
-    /* FALLTHRU */                                  \
-    case __LINE__:                                  \
-        if ((__xf_task_yield_flag == 0) || !(cond)) \
-        {                                           \
-            xf_ntask_count_add_once(__xf_now_task); \
-            return;                                 \
-        }                                           \
+#define xf_ntask_exit(ntask)                \
+    do                                      \
+    {                                       \
+        xf_ntask_set_lc(ntask, __func__, 0);                \
+        if(xf_ntask_lc_is_first(ntask, __func__)) {         \
+            xf_ntask_set_exit_status(ntask, XF_NTASK_FINSHED);   \
+        } else {                        \
+            xf_ntask_set_exit_status(ntask, XF_NTASK_ENDED);     \
+        }                               \
+        return;                         \
     } while (0)
 
-/**
- * @brief 无栈协程计数信号量初始化。
- *
- * @param s 信号量对象 @ref xf_ntask_sem_t.
- * @param c 信号量初始值，信号量的资源总值。
- */
-#define xf_ntask_sem_init(s, c) (s)->count = c
 
-/**
- * @brief 无栈协程计数信号量等待，直到大于0才能执行。
- *
- * @note 一般用于请求资源。
- *
- * @param s 信号量对象 @ref xf_ntask_sem_t.
- */
-#define xf_ntask_sem_wait(s)                 \
-    do                                       \
-    {                                        \
-        XF_NTASK_WAIT_UNTIL((s)->count > 0); \
-        --(s)->count;                        \
-    } while (0)
+typedef void xf_async_t;
 
-/**
- * @brief 设置无栈协程计数信号量，唤醒等待的线程。
- *
- * @note 一般用于释放资源。
- *
- * @param s 信号量对象 @ref xf_ntask_sem_t.
- */
-#define xf_ntask_sem_signal(s) ++(s)->count
+#define xf_await(func) func;\
+int _async_status = xf_ntask_get_exit_status(task);\
+if (_async_status == XF_NTASK_YIELDED || _async_status == XF_NTASK_WAITING) \
+{\
+    xf_ntask_set_lc(task, __func__, __LINE__);   \
+    return;                             \
+    case __LINE__:                          \
+}
+
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
 /**
- * End of group_xf_task_ntask
+ * End of group_xf_task_user_ttask
  * @}
  */
 
-#endif // __XF_TASK_NOCONTEXT_H__
+#endif // __XF_NTASK_H__

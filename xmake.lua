@@ -34,6 +34,7 @@ end
 
 add_target("ctask")
 add_target("ntask")
+add_target("ttask")
 add_target("task")
 add_target("priority")
 add_target("urgent")
@@ -41,9 +42,4 @@ add_target("hunger")
 add_target("ctask_queue")
 add_target("trigger")
 add_target("mbus")
-add_target("ntask2")
 add_target("task_pool")
-add_target("test")
-
-
-

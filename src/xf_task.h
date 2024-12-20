@@ -3,7 +3,7 @@
  * @author cangyu (sky.kirto@qq.com)
  * @brief xfuison 多任务实现。
  *  - ctask 有栈协程
- *  - ntask 无栈协程
+ *  - ttask 无栈协程
  * @version 1.0
  * @date 2024-08-06
  *
@@ -12,29 +12,32 @@
  */
 
 /**
- * @cond (XFAPI_USER || XFAPI_PORT || XFAPI_INTERNAL)
  * @defgroup group_xf_task xf_task
  * @brief 提供基于有栈协程或者无栈协程的多任务支持。
- * @endcond
  */
 
 /**
- * @cond XFAPI_PORT
  * @ingroup group_xf_task
- * @defgroup group_xf_task_port porting
+ * @defgroup group_xf_task_user 用户接口
+ * @brief 调用具体功能的接口。如创建任务、发布订阅、任务池等。
+ *
+ * xfusion 用户使用 xf_task 时只需 `#include "xf_task.h"` 即可。
+ *
+ */
+
+/**
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_port 移植接口
  * @brief 用于对接 xf_task 的接口。
  *
  * 对接 xf_task 时同样只需 `#include "xf_task.h"` 即可。
  *
- * @endcond
  */
 
 /**
- * @cond XFAPI_INTERNAL
  * @ingroup group_xf_task
- * @defgroup group_xf_task_internal internal
- * @brief 组件内部实现某些功能时定义的接口。
- * @endcond
+ * @defgroup group_xf_task_internal 内部接口
+ * @brief 组件内部实现某些功能时定义的接口。用户不一定需要。
  */
 
 #ifndef __XF_TASK_H__
@@ -46,6 +49,7 @@
 #include "port/xf_task_port.h"
 #include "kernel/xf_task_kernel.h"
 #include "task/xf_ctask.h"
+#include "task/xf_ttask.h"
 #include "task/xf_ntask.h"
 #include "task/xf_task_default.h"
 #include "utils/xf_task_mbus.h"
@@ -62,12 +66,10 @@ extern "C" {
 
 /* ==================== [Global Prototypes] ================================= */
 
-#if XF_TASK_CONTEXT_IS_ENABLE || defined(__DOXYGEN__)
+#if XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @cond XFAPI_USER
- * @addtogroup group_xf_task_ctask
- * @endcond
+ * @ingroup group_xf_task_user_ctask
  * @{
  */
 
@@ -117,23 +119,21 @@ xf_ctask_queue_t xf_ctask_queue_create(const size_t size, const size_t count)
 }
 
 /**
- * End of addtogroup group_xf_task_ctask
+ * End of group_xf_task_user_ctask
  * @}
  */
 
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @cond XFAPI_USER
- * @addtogroup group_xf_task_ntask
- * @endcond
+ * @ingroup group_xf_task_user_ttask
  * @{
  */
 
 /**
- * @brief 在默认的任务管理下，创建 ntask 任务。
+ * @brief 在默认的任务管理下，创建 ttask 任务。
  *
- * @param func ntask 任务执行的函数。
+ * @param func ttask 任务执行的函数。
  * @param func_arg 用户自定义执行函数参数。
  * @param priority 任务优先级。
  * @param delay_ms 任务延时周期，单位为毫秒。
@@ -141,43 +141,48 @@ xf_ctask_queue_t xf_ctask_queue_create(const size_t size, const size_t count)
  * @return xf_task_t 任务对象，返回为 NULL 则表示创建失败
  */
 static inline
-xf_task_t xf_ntask_create(xf_task_func_t func, void *func_arg, uint16_t priority, uint32_t delay_ms, uint32_t count)
+xf_task_t xf_ttask_create(xf_task_func_t func, void *func_arg, uint16_t priority, uint32_t delay_ms, uint32_t count)
 {
-    xf_ntask_config_t config = {.count = count, .delay_ms = delay_ms};
-    return xf_task_create_with_manager(xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, func, func_arg, priority,
+    xf_ttask_config_t config = {.count = count, .delay_ms = delay_ms};
+    return xf_task_create_with_manager(xf_task_get_default_manager(), XF_TASK_TYPE_TTASK, func, func_arg, priority,
                                        &config);
 }
 
 /**
- * @brief 在默认的任务管理下，创建 ntask 循环任务。
+ * @brief 在默认的任务管理下，创建 ttask 循环任务。
  *
- * @param func ntask 任务执行的函数。
+ * @param func ttask 任务执行的函数。
  * @param func_arg 用户自定义执行函数参数。
  * @param priority 任务优先级。
  * @param delay_ms 任务延时周期，单位为毫秒。
  * @return xf_task_t 任务对象，返回为 NULL 则表示创建失败
  */
 static inline
-xf_task_t xf_ntask_create_loop(xf_task_func_t func, void *func_arg, uint16_t priority, uint32_t delay_ms)
+xf_task_t xf_ttask_create_loop(xf_task_func_t func, void *func_arg, uint16_t priority, uint32_t delay_ms)
 {
-    xf_ntask_config_t config = {.count = XF_NTASK_INFINITE_LOOP, .delay_ms = delay_ms};
-    return xf_task_create_with_manager(xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, func, func_arg, priority,
+    xf_ttask_config_t config = {.count = XF_TTASK_INFINITE_LOOP, .delay_ms = delay_ms};
+    return xf_task_create_with_manager(xf_task_get_default_manager(), XF_TASK_TYPE_TTASK, func, func_arg, priority,
                                        &config);
 }
 
 /**
- * End of addtogroup group_xf_task_ntask
+ * End of group_xf_task_user_ttask
  * @}
  */
 
-#if XF_TASK_POOL_IS_ENABLE || defined(__DOXYGEN__)
+static inline
+xf_task_t xf_ntask_create(xf_task_func_t func, void *func_arg, uint16_t priority)
+{
+    return xf_task_create_with_manager(xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, func, func_arg, priority,
+                                       NULL);
+}
 
-#if XF_TASK_CONTEXT_IS_ENABLE || defined(__DOXYGEN__)
+#if XF_TASK_POOL_IS_ENABLE
+
+#if XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @cond XFAPI_USER
- * @addtogroup group_xf_task_ctask
- * @endcond
+ * @ingroup group_xf_task_user_ctask
  * @{
  */
 
@@ -210,21 +215,19 @@ static inline xf_task_pool_t xf_ctask_pool_create(uint32_t max_works, size_t sta
 }
 
 /**
- * End of addtogroup group_xf_task_ctask
+ * End of group_xf_task_user_ctask
  * @}
  */
 
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @cond XFAPI_USER
- * @addtogroup group_xf_task_ntask
- * @endcond
+ * @ingroup group_xf_task_user_ttask
  * @{
  */
 
 /**
- * @brief 在指定的任务管理下，创建 ntask 任务池。
+ * @brief 在指定的任务管理下，创建 ttask 任务池。
  *
  * @param max_works 任务池最大工作任务数。
  * @param manager 任务管理器。
@@ -232,29 +235,29 @@ static inline xf_task_pool_t xf_ctask_pool_create(uint32_t max_works, size_t sta
  * @param count 任务循环的次数上限。
  * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
  */
-static inline xf_task_pool_t xf_ntask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager,
+static inline xf_task_pool_t xf_ttask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager,
         uint32_t delay_ms, uint32_t count)
 {
-    xf_ntask_config_t config = {.count = count, .delay_ms = delay_ms};
-    return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_NTASK, &config);
+    xf_ttask_config_t config = {.count = count, .delay_ms = delay_ms};
+    return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_TTASK, &config);
 }
 
 /**
- * @brief 在默认的任务管理下，创建 ntask 任务池。
+ * @brief 在默认的任务管理下，创建 ttask 任务池。
  *
  * @param max_works 任务池最大工作任务数。
  * @param delay_ms 任务延时，单位为毫秒。
  * @param count 任务循环的次数上限。
  * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
  */
-static inline xf_task_pool_t xf_ntask_pool_create(uint32_t max_works, uint32_t delay_ms, uint32_t count)
+static inline xf_task_pool_t xf_ttask_pool_create(uint32_t max_works, uint32_t delay_ms, uint32_t count)
 {
-    xf_ntask_config_t config = {.count = count, .delay_ms = delay_ms};
-    return xf_task_pool_create_with_manager(max_works, xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, &config);
+    xf_ttask_config_t config = {.count = count, .delay_ms = delay_ms};
+    return xf_task_pool_create_with_manager(max_works, xf_task_get_default_manager(), XF_TASK_TYPE_TTASK, &config);
 }
 
 /**
- * End of addtogroup group_xf_task_ntask
+ * End of group_xf_task_user_ttask
  * @}
  */
 

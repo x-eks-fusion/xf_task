@@ -31,9 +31,9 @@ int main()
     xf_task_manager_default_init(task_on_idle);
 
     // 创建任务
-    xf_task_t task = xf_ntask_create_loop(task1, (void *)0, 1, 500);
-    xf_ntask_create_loop(task2, (void *)1, 1, 500);
-    xf_ntask_create_loop(task3, (void *)2, 2, 100);
+    xf_task_t task = xf_ttask_create_loop(task1, (void *)0, 1, 500);
+    xf_ttask_create_loop(task2, (void *)1, 1, 500);
+    xf_ttask_create_loop(task3, (void *)2, 2, 100);
 
     // 设置 task1 为紧急任务
     xf_task_set_urgent_task(task, false);

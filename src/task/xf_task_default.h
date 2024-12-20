@@ -17,11 +17,9 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @cond XFAPI_USER
- * @ingroup group_xf_task
- * @defgroup group_xf_task_task_manager_default task_manager_default
+ * @ingroup group_xf_task_user
+ * @defgroup group_xf_task_user_task_manager_default task_manager_default
  * @brief 用于简化调用的默认任务管理器。
- * @endcond
  * @{
  */
 
@@ -82,7 +80,7 @@ xf_err_t xf_task_set_urgent_task(xf_task_t task, bool force);
 /**
  * @brief 基于默认 manager，创建任务。
  *
- * @param type 任务类型，XF_TASK_TYPE_CTASK 和 XF_TASK_TYPE_NTASK。
+ * @param type 任务类型，XF_TASK_TYPE_CTASK 和 XF_TASK_TYPE_TTASK。
  * @param func 任务入口函数。
  * @param func_arg 任务参数。
  * @param priority 任务优先级。
@@ -98,7 +96,7 @@ xf_task_t xf_task_create(xf_task_type_t type, xf_task_func_t func, void *func_ar
 #endif
 
 /**
- * End of group_xf_task_task_manager_default
+ * End of group_xf_task_user_task_manager_default
  * @}
  */
 

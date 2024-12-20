@@ -14,15 +14,19 @@
 
 #define USE_GNU_UC 0
 
+#if USE_GNU_UC
+#include <ucontext.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define XF_TASK_CONF_SUPPRESS_DEFINE_CHECK 1
+
 #define XF_TASK_CONTEXT_DISABLE 1
 
 #define XF_TASK_HUNGER_ENABLE 0
-
-#define XF_TASK_MBUS_ENABLE 0
 
 #ifdef __cplusplus
 } /* extern "C" */

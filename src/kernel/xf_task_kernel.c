@@ -36,7 +36,7 @@ xf_task_t xf_task_create_with_manager(xf_task_manager_t manager, xf_task_type_t 
     XF_ASSERT(manager, NULL, TAG, "manager must not be NULL");
     XF_ASSERT(func, NULL, TAG, "func must not be NULL");
     XF_ASSERT(priority < XF_TASK_PRIORITY_LEVELS, NULL, TAG, "priority must less than %d", XF_TASK_PRIORITY_LEVELS);
-    XF_ASSERT(config, NULL, TAG, "args must not be NULL");
+    // XF_ASSERT(config, NULL, TAG, "args must not be NULL");
 
     const xf_task_vfunc_t *vfunc = xf_task_get_vfunc(type);
     xf_task_t task = vfunc->constructor(manager, func, func_arg, priority, config);
@@ -204,7 +204,9 @@ xf_err_t xf_task_set_delay(xf_task_t task, uint32_t delay_ms)
     XF_ASSERT(task, XF_ERR_INVALID_ARG, TAG, "task must not be NULL");
     xf_task_base_t *handle = (xf_task_base_t *)task;
 
-    handle->delay = delay_ms;
+    int32_t ticks = xf_task_msec_to_ticks(delay_ms);
+    handle->delay = ticks;
+    handle->weakup = xf_task_get_ticks() + ticks;
 
     return XF_OK;
 }

@@ -17,11 +17,9 @@
 #include "xf_task_manager.h"
 
 /**
- * @cond XFAPI_INTERNAL
- * @ingroup group_xf_task
- * @defgroup group_xf_task_kernel kernel
+ * @ingroup group_xf_task_user
+ * @defgroup group_xf_task_user_kernel kernel
  * @brief xf_task 内核。
- * @endcond
  * @{
  */
 
@@ -260,7 +258,7 @@ void *xf_task_get_user_data(xf_task_t task);
 #endif
 
 /**
- * End of group_xf_task_kernel
+ * End of group_xf_task_user_kernel
  * @}
  */
 

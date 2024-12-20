@@ -6,14 +6,14 @@ xf_task_pool_t npool = NULL;
 xf_task_pool_t cpool = NULL;
 #define MAX_WORKERS 3
 
-static void ntask(xf_task_t task)
+static void ttask(xf_task_t task)
 {
     static int num = 0;
     num++;
     // 不断的创建任务（由于任务池的存在，所以不会申请内存，反而会回收已经使用完的任务）
-    printf("ntask:%d\n", num);
+    printf("ttask:%d\n", num);
     if (num < 5) {
-        xf_task_init_from_pool(npool, ntask, (void *)1, 1);
+        xf_task_init_from_pool(npool, ttask, (void *)1, 1);
     } else {
         xf_task_pool_delete(npool);
         printf("delete npool\n");
@@ -46,14 +46,14 @@ int main()
     // 初始化默认任务管理器
     xf_task_manager_default_init(task_on_idle);
 
-    // 创建 ntask 任务池
-    npool = xf_ntask_pool_create(MAX_WORKERS, 1000, 1);
+    // 创建 ttask 任务池
+    npool = xf_ttask_pool_create(MAX_WORKERS, 1000, 1);
 
     // 创建 ctask 任务池
     cpool = xf_ctask_pool_create(MAX_WORKERS, 1024 * 8);
 
-    // 通过任务池创建 ntask 任务
-    xf_task_init_from_pool(npool, ntask, (void *)1, 1);
+    // 通过任务池创建 ttask 任务
+    xf_task_init_from_pool(npool, ttask, (void *)1, 1);
     // 通过任务池创建 ctask 任务
     xf_task_init_from_pool(cpool, ctask, (void *)1, 1);
 
@@ -64,3 +64,4 @@ int main()
 
     return 0;
 }
+
