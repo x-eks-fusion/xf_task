@@ -20,7 +20,7 @@ static void ctask(xf_task_t task)
     printf("task:%ld\n", num);
 }
 
-static void ntask(xf_task_t task)
+static void ttask(xf_task_t task)
 {
     uintptr_t num = (uintptr_t) xf_task_get_arg(task);
     printf("task:%ld\n", num);
@@ -36,10 +36,10 @@ int main()
     xf_task_manager_default_init(task_on_idle);
 
     // 创建任务
-    task1 = xf_ntask_create_loop(ntask, (void *)1, 1, 0);  // 循环时间设置为0，不会通过时间触发
+    task1 = xf_ttask_create_loop(ttask, (void *)1, 1, 0);  // 循环时间设置为0，不会通过时间触发
     task2 = xf_ctask_create(ctask, (void *)2, 1, 1024 * 8);
     // 创建循环触发任务
-    xf_ntask_create_loop(trigger, (void *)3, 1, 2000);
+    xf_ttask_create_loop(trigger, (void *)3, 1, 2000);
 
     // 启动任务管理器
     while (1) {

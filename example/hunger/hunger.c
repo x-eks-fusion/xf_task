@@ -31,9 +31,9 @@ int main()
     xf_task_manager_default_init(task_on_idle);
 
     // 创建任务
-    xf_ntask_create_loop(task1, (void *)0, 0, 500);
-    xf_ntask_create_loop(task2, (void *)1, 0, 500);
-    t3 = xf_ntask_create_loop(task3, (void *)2, 2, 500);
+    xf_ttask_create_loop(task1, (void *)0, 0, 500);
+    xf_ttask_create_loop(task2, (void *)1, 0, 500);
+    t3 = xf_ttask_create_loop(task3, (void *)2, 2, 500);
 
     // 打开 task3 的饥饿度控制
     xf_task_feel_hungery_enable(t3, 1000);

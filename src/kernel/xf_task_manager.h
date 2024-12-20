@@ -18,11 +18,9 @@
 #include "xf_utils.h"
 
 /**
- * @cond XFAPI_INTERNAL
- * @ingroup group_xf_task
- * @defgroup group_xf_task_manager manager
+ * @ingroup group_xf_task_user
+ * @defgroup group_xf_task_user_manager manager
  * @brief xf_task 任务管理器。
- * @endcond
  * @{
  */
 
@@ -151,7 +149,7 @@ xf_err_t xf_task_manager_task_blocked(xf_task_manager_t manager, xf_task_t task)
 #endif
 
 /**
- * End of group_xf_task_manager
+ * End of group_xf_task_user_manager
  * @}
  */
 

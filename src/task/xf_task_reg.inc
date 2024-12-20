@@ -12,6 +12,7 @@
 
 #include "../kernel/xf_task_table_rule.h"
 
+XF_TASK_REG(ttask)
 XF_TASK_REG(ntask)
 
 #if XF_TASK_CONTEXT_IS_ENABLE 
