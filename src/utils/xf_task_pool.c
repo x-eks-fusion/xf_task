@@ -60,8 +60,7 @@ xf_task_pool_t xf_task_pool_create_with_manager(uint32_t max_works, xf_task_mana
 
     xf_task_pool_handle_t *pool = (xf_task_pool_handle_t *)xf_malloc(sizeof(xf_task_pool_handle_t) +
                                   sizeof(xf_pool_task_t) * max_works);
-    if (pool == NULL)
-    {
+    if (pool == NULL) {
         XF_LOGE(TAG, "memory alloc failed!");
         return NULL;
     }

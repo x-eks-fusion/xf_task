@@ -63,7 +63,7 @@ xf_async_t test(xf_task_t task, int a)
 static void task1(xf_task_t task)
 {
     XF_NTASK_BEGIN(task);
-    
+
     int a = 2;
     xf_ntask_args_set_int(task, "a", a);
     while (1) {

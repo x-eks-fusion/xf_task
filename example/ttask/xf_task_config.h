@@ -19,7 +19,6 @@ extern "C" {
 #endif
 
 
-
 #define XF_TASK_CONTEXT_DISABLE 1
 
 #define XF_TASK_HUNGER_ENABLE 0

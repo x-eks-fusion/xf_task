@@ -38,11 +38,10 @@ int main()
     xf_ctask_create(task2, (void *)3, 1, 1024 * 8);
 
     // 启动任务管理器
-    while (1)
-    {
+    while (1) {
         xf_task_manager_run_default();
     }
-    
+
 
     return 0;
 }

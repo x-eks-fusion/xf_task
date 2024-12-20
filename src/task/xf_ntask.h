@@ -270,7 +270,6 @@ if (_async_status == XF_NTASK_YIELDED || _async_status == XF_NTASK_WAITING) \
 }
 
 
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

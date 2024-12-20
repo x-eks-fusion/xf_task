@@ -41,7 +41,7 @@ extern "C" {
 #define XF_TASK_SIGNAL_RESUME           (1UL << 3)  /*!< 恢复信号，通知任务从挂起状态被恢复 */
 /**
  * End of XF_TASK_SIGNAL
- * @} 
+ * @}
  */
 
 /**

@@ -150,8 +150,7 @@ xf_err_t xf_task_mbus_sub(uint32_t topic_id, xf_task_mbus_func_t mbus_cb, void *
     // 如果没有重复注册，则创建并加入链表
     msub = (xf_task_msub_t *)xf_malloc(sizeof(xf_task_msub_t));
 
-    if (msub == NULL)
-    {
+    if (msub == NULL) {
         XF_LOGE(TAG, "memory alloc failed!");
         return XF_ERR_NO_MEM;
     }

@@ -127,7 +127,7 @@ xf_err_t xf_task_mbus_unsub_all(uint32_t topic_id);
 
 /**
  * @brief 处理异步的消息。
- * 
+ *
  * @note 给异步订阅使用的，需要循环调用。
  */
 void xf_task_mbus_handle(void);

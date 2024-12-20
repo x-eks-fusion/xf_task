@@ -46,8 +46,7 @@ int main()
     xf_ctask_create(receive_task, (void *)2, 1, 1024 * 8);
 
     // 启动任务管理器
-    while (1)
-    {
+    while (1) {
         xf_task_manager_run_default();
     }
 
