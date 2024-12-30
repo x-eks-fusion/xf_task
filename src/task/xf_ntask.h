@@ -190,69 +190,70 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
 /* ==================== [Macros] ============================================ */
 
 #define XF_NTASK_BEGIN(ntask)       \
+    xf_task_t *_ntask = ntask;      \
     switch (xf_ntask_get_lc(ntask, __func__)) \
     {                               \
     case 0:
 
-#define XF_NTASK_END(ntask)    \
+#define XF_NTASK_END()    \
     }                          \
-    xf_ntask_set_lc(ntask, __func__, 0); \
-    if(xf_ntask_lc_is_first(ntask, __func__)) { \
-        xf_ntask_set_exit_status(ntask, XF_NTASK_FINSHED); \
+    xf_ntask_set_lc(_ntask, __func__, 0); \
+    if(xf_ntask_lc_is_first(_ntask, __func__)) { \
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_FINSHED); \
     } else {                    \
-        xf_ntask_set_exit_status(ntask, XF_NTASK_ENDED); \
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_ENDED); \
     }\
     return
 
-#define xf_ntask_yield(ntask)               \
+#define xf_ntask_yield()               \
     do                                      \
     {                                       \
-        xf_task_trigger(ntask);             \
-        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
-        xf_ntask_set_exit_status(ntask, XF_NTASK_YIELDED); \
+        xf_task_trigger(_ntask);             \
+        xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_YIELDED); \
         return;                             \
     case __LINE__:;                         \
     } while (0)
 
-#define xf_ntask_until(ntask, compare_cb)             \
+#define xf_ntask_until(compare_cb)             \
     do                                      \
     {                                       \
-        xf_ntask_set_compare(ntask, compare_cb);      \
-        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
-        xf_ntask_set_exit_status(ntask, XF_NTASK_WAITING); \
+        xf_ntask_set_compare(_ntask, compare_cb);      \
+        xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_WAITING); \
         return;                             \
     case __LINE__:;                         \
     } while (0)
 
-#define xf_ntask_delay(ntask, delay_ms)     \
+#define xf_ntask_delay(delay_ms)     \
     do                                      \
     {                                       \
-        xf_task_set_delay(ntask, delay_ms); \
-        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
-        xf_ntask_set_exit_status(ntask, XF_NTASK_WAITING); \
+        xf_task_set_delay(_ntask, delay_ms); \
+        xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_WAITING); \
         return;                             \
     case __LINE__:;                         \
     } while (0)
 
-#define xf_ntask_until_timeout(ntask, compare_cb, timeout_ms) \
+#define xf_ntask_until_timeout(compare_cb, timeout_ms) \
     do                                      \
     {                                       \
-        xf_task_set_delay(ntask, timeout_ms); \
-        xf_ntask_set_compare(ntask, compare_cb);      \
-        xf_ntask_set_lc(ntask, __func__, __LINE__);   \
-        xf_ntask_set_exit_status(ntask, XF_NTASK_WAITING); \
+        xf_task_set_delay(_ntask, timeout_ms); \
+        xf_ntask_set_compare(_ntask, compare_cb);      \
+        xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_WAITING); \
         return;                             \
     case __LINE__:;                         \
     } while (0)
 
-#define xf_ntask_exit(ntask)                \
+#define xf_ntask_exit()                \
     do                                      \
     {                                       \
-        xf_ntask_set_lc(ntask, __func__, 0);                \
-        if(xf_ntask_lc_is_first(ntask, __func__)) {         \
-            xf_ntask_set_exit_status(ntask, XF_NTASK_FINSHED);   \
+        xf_ntask_set_lc(_ntask, __func__, 0);                \
+        if(xf_ntask_lc_is_first(_ntask, __func__)) {         \
+            xf_ntask_set_exit_status(_ntask, XF_NTASK_FINSHED);   \
         } else {                        \
-            xf_ntask_set_exit_status(ntask, XF_NTASK_ENDED);     \
+            xf_ntask_set_exit_status(_ntask, XF_NTASK_ENDED);     \
         }                               \
         return;                         \
     } while (0)
@@ -260,14 +261,20 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
 
 typedef void xf_async_t;
 
-#define xf_await(func) func;\
-int _async_status = xf_ntask_get_exit_status(task);\
-if (_async_status == XF_NTASK_YIELDED || _async_status == XF_NTASK_WAITING) \
-{\
-    xf_ntask_set_lc(task, __func__, __LINE__);   \
-    return;                             \
-    case __LINE__:;                         \
-}
+#define xf_await(func)                      \
+    case __LINE__:                          \
+    func;\
+    int _async_status = xf_ntask_get_exit_status(_ntask);\
+    if (_async_status == XF_NTASK_YIELDED || _async_status == XF_NTASK_WAITING) \
+    {\
+        xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
+        return;                             \
+    }\
+    else\
+    {\
+        xf_ntask_set_exit_status(_ntask, XF_NTASK_NONE);\
+    }
+    
 
 
 #ifdef __cplusplus
