@@ -38,7 +38,6 @@ typedef struct _xf_pool_task_t {
     xf_task_pool_handle_t *pool;
 } xf_pool_task_t;
 
-
 /* ==================== [Static Prototypes] ================================= */
 
 static void xf_task_pool_default_task(xf_task_t task);

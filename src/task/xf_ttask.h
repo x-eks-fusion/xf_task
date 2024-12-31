@@ -118,7 +118,6 @@ xf_err_t xf_ttask_set_count_max(xf_task_t task, uint32_t count_max);
 
 /* ==================== [Macros] ============================================ */
 
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

@@ -15,7 +15,6 @@
 #include "../port/xf_task_port_internal.h"
 #include "../kernel/xf_task_base.h"
 
-
 #if XF_TASK_CONTEXT_IS_ENABLE
 
 /* ==================== [Defines] =========================================== */
@@ -79,11 +78,10 @@ void xf_ctask_delay_with_manager(xf_task_manager_t manager, uint32_t delay_ms)
         return;
     }
 
-
     int32_t ticks = xf_task_msec_to_ticks(delay_ms);
 
     task->base.delay = ticks;
-    task->base.weakup = xf_task_get_ticks() + ticks;
+    task->base.wake_up = xf_task_get_ticks() + ticks;
     xf_ctask_yield(manager);
 
 }
@@ -247,10 +245,8 @@ static xf_task_t xf_ctask_constructor(xf_task_manager_t manager, xf_task_func_t 
 
     xf_list_init(&task->queue_node);
 
-
     return (xf_task_t)task;
 }
-
 
 static xf_task_time_t xf_ctask_update(xf_task_t task)
 {
@@ -258,7 +254,7 @@ static xf_task_time_t xf_ctask_update(xf_task_t task)
 
     xf_task_time_t time_ticks = xf_task_get_ticks();
 
-    int32_t timeout = time_ticks - handle->base.weakup;
+    int32_t timeout = time_ticks - handle->base.wake_up;
 
     // 转换超时时间，如果大于零则触发超时
     handle->base.timeout = xf_task_ticks_to_msec(timeout);

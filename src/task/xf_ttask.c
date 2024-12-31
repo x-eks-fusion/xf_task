@@ -107,7 +107,6 @@ static xf_task_t xf_ttask_constructor(xf_task_manager_t manager, xf_task_func_t 
         return NULL;
     }
 
-
     xf_ttask_config_t *ttask_config = config;
 
     uint32_t ticks = xf_task_msec_to_ticks(ttask_config->delay_ms);
@@ -118,7 +117,7 @@ static xf_task_t xf_ttask_constructor(xf_task_manager_t manager, xf_task_func_t 
     task->count = ttask_config->count;
     task->count_max = ttask_config->count;
 
-    task->base.weakup = xf_task_get_ticks() + ticks;
+    task->base.wake_up = xf_task_get_ticks() + ticks;
 
     return (xf_task_t)task;
 }
@@ -130,14 +129,14 @@ static void xf_ttask_reset(xf_task_t task)
     xf_task_base_reset(&handle->base);
 
     handle->count = handle->count_max;  // 重置计数器
-    handle->base.weakup = xf_task_get_ticks() + handle->base.delay; // 重置唤醒时间
+    handle->base.wake_up = xf_task_get_ticks() + handle->base.delay; // 重置唤醒时间
 }
 
 static void xf_ttask_time_handle(xf_task_t task, uint32_t time_ticks)
 {
     xf_ttask_handle_t *handle = (xf_ttask_handle_t *)task;
 
-    int32_t timeout = time_ticks - handle->base.weakup;
+    int32_t timeout = time_ticks - handle->base.wake_up;
 
     // 计数器到0，停止更新，进入删除状态
     if (handle->count == 0) {
@@ -185,7 +184,6 @@ static void xf_ttask_exec(xf_task_manager_t manager)
     task->base.func(task);
 
     if (task->base.delay != 0) {
-        task->base.weakup = xf_task_get_ticks() + task->base.delay;
+        task->base.wake_up = xf_task_get_ticks() + task->base.delay;
     }
 }
-

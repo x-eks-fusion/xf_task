@@ -22,16 +22,13 @@
 extern "C" {
 #endif
 
-
 #define XF_TASK_CONTEXT_DISABLE 1
-
 
 #if USE_GNU_UC
 #define XF_TASK_CONTEXT_TYPE ucontext_t
 #else
 #define XF_TASK_CONTEXT_TYPE void*
 #endif
-
 
 #ifdef __cplusplus
 } /* extern "C" */

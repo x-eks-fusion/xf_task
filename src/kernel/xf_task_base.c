@@ -69,7 +69,7 @@ void xf_task_base_init(xf_task_base_t *task_base, xf_task_manager_t manager, xf_
     task_base->signal = 0;
     task_base->flag = 0;
     task_base->delay = 0;
-    task_base->weakup = 0;
+    task_base->wake_up = 0;
     task_base->suspend_time = 0;
     task_base->timeout = 0;
     task_base->state = XF_TASK_STATE_BLOCKED;
@@ -91,7 +91,7 @@ void xf_task_base_reset(xf_task_base_t *task_base)
     task_base->state = XF_TASK_STATE_BLOCKED;
     task_base->flag = 0;
     task_base->signal = 0;
-    task_base->weakup = 0;
+    task_base->wake_up = 0;
     task_base->suspend_time = 0;
     task_base->timeout = 0;
     xf_list_del_init(&task_base->node);

@@ -142,7 +142,7 @@ xf_err_t xf_task_resume(xf_task_t task)
 
     xf_task_time_t resume_time = xf_task_get_ticks() - task_base->suspend_time;
 
-    task_base->weakup += resume_time;
+    task_base->wake_up += resume_time;
 
     return XF_OK;
 }
@@ -206,7 +206,7 @@ xf_err_t xf_task_set_delay(xf_task_t task, uint32_t delay_ms)
 
     int32_t ticks = xf_task_msec_to_ticks(delay_ms);
     handle->delay = ticks;
-    handle->weakup = xf_task_get_ticks() + ticks;
+    handle->wake_up = xf_task_get_ticks() + ticks;
 
     return XF_OK;
 }
