@@ -77,7 +77,6 @@ void xf_task_context_swap(xf_task_manager_t manager, void *old_context, void *ne
 
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
-
 int32_t xf_task_msec_to_ticks(int32_t msec)
 {
     return (msec * XF_TASK_TICKS_FREQUENCY / 1000);
@@ -98,4 +97,3 @@ static void xf_task_reg_init(void)
 #define XF_TASK_REG_FUNCTION
 #include "../task/xf_task_reg.inc"
 }
-

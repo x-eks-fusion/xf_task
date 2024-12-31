@@ -120,7 +120,7 @@ typedef struct _xf_task_base_t {
                                      *   见 XF_TASK_SIGNAL_* 宏 */
     uint32_t priority:  10;         /*!< 任务优先级，具体最大值参考 @ref XF_TASK_PRIORITY_LEVELS */
     uint32_t delay;                 /*!< 对类型于有上下文是延时时间，对于没有上下文则是定时周期  */
-    xf_task_time_t weakup;          /*!< 唤醒时间，通过延时时间计算而来 */
+    xf_task_time_t wake_up;          /*!< 唤醒时间，通过延时时间计算而来 */
     xf_task_time_t suspend_time;    /*!< 挂起时间，挂起期间内的时间不会算入延时时间 */
     int32_t timeout;                /*!< 超时时间，正数为超时时间，负数则属于提前唤醒 */
     const xf_task_vfunc_t *vfunc;   /*!< 虚函数指针，由子对象实现具体操作。

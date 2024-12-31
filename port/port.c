@@ -95,7 +95,6 @@ void swap_context(xf_task_manager_t manager, void *old_context, void *new_contex
 }
 #endif
 
-
 xf_task_time_t task_get_tick(void)
 {
     struct timespec tp;

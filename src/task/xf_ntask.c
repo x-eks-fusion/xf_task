@@ -22,7 +22,6 @@
 
 /* ==================== [Typedefs] ========================================== */
 
-
 typedef struct _xf_ntask_args_t {
     xf_list_t node;
     void *args;
@@ -143,7 +142,6 @@ xf_err_t xf_ntask_args_set_float(xf_task_t *task, const char *name, float value)
         return XF_OK;
     }
 
-
     void *args = xf_ntask_args_create(&handle->args_list, name, sizeof(float), 1);
 
     if (args == NULL) {
@@ -164,7 +162,6 @@ xf_err_t xf_ntask_args_set_array(xf_task_t *task, const char *name, void *value,
     if (err == XF_OK) {
         return XF_OK;
     }
-
 
     void *args = xf_ntask_args_create(&handle->args_list, name, size, len);
 
@@ -267,7 +264,7 @@ static void xf_ntask_time_handle(xf_task_t task, uint32_t time_ticks)
 {
     xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
 
-    int32_t timeout = time_ticks - handle->base.weakup;
+    int32_t timeout = time_ticks - handle->base.wake_up;
     // 转换超时时间，如果大于零则触发超时
     handle->base.timeout = xf_task_ticks_to_msec(timeout);
     if (timeout >= 0) {
@@ -423,6 +420,3 @@ static void xf_ntask_lc_remove_all(xf_list_t *head)
         xf_free(item);
     }
 }
-
-
-

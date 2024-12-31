@@ -55,7 +55,6 @@ typedef enum _xf_ntask_status_t {
     XF_NTASK_FINSHED,
 } xf_ntask_status_t;
 
-
 /* ==================== [Global Prototypes] ================================= */
 
 /**
@@ -258,7 +257,6 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
         return;                         \
     } while (0)
 
-
 typedef void xf_async_t;
 
 #define xf_await(func)                      \
@@ -274,8 +272,6 @@ typedef void xf_async_t;
     {\
         xf_ntask_set_exit_status(_ntask, XF_NTASK_NONE);\
     }
-    
-
 
 #ifdef __cplusplus
 } /* extern "C" */
