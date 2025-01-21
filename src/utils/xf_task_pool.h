@@ -21,9 +21,11 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_task_pool task_pool
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_task_pool task_pool
  * @brief 任务池。
+ * @endcond
  * @{
  */
 
@@ -82,7 +84,7 @@ xf_task_t xf_task_init_from_pool(xf_task_pool_t pool, xf_task_func_t func, void 
 #endif
 
 /**
- * End of group_xf_task_user_task_pool
+ * End of group_xf_task_task_pool
  * @}
  */
 

@@ -12,32 +12,29 @@
  */
 
 /**
+ * @cond (XFAPI_USER || XFAPI_PORT || XFAPI_INTERNAL)
  * @defgroup group_xf_task xf_task
  * @brief 提供基于有栈协程或者无栈协程的多任务支持。
+ * @endcond
  */
 
 /**
+ * @cond XFAPI_PORT
  * @ingroup group_xf_task
- * @defgroup group_xf_task_user 用户接口
- * @brief 调用具体功能的接口。如创建任务、发布订阅、任务池等。
- *
- * xfusion 用户使用 xf_task 时只需 `#include "xf_task.h"` 即可。
- *
- */
-
-/**
- * @ingroup group_xf_task
- * @defgroup group_xf_task_port 移植接口
+ * @defgroup group_xf_task_port porting
  * @brief 用于对接 xf_task 的接口。
  *
  * 对接 xf_task 时同样只需 `#include "xf_task.h"` 即可。
  *
+ * @endcond
  */
 
 /**
+ * @cond XFAPI_INTERNAL
  * @ingroup group_xf_task
- * @defgroup group_xf_task_internal 内部接口
- * @brief 组件内部实现某些功能时定义的接口。用户不一定需要。
+ * @defgroup group_xf_task_internal internal
+ * @brief 组件内部实现某些功能时定义的接口。
+ * @endcond
  */
 
 #ifndef __XF_TASK_H__
@@ -66,10 +63,12 @@ extern "C" {
 
 /* ==================== [Global Prototypes] ================================= */
 
-#if XF_TASK_CONTEXT_IS_ENABLE
+#if XF_TASK_CONTEXT_IS_ENABLE || defined(__DOXYGEN__)
 
 /**
- * @ingroup group_xf_task_user_ctask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ctask
+ * @endcond
  * @{
  */
 
@@ -119,14 +118,16 @@ xf_ctask_queue_t xf_ctask_queue_create(const size_t size, const size_t count)
 }
 
 /**
- * End of group_xf_task_user_ctask
+ * End of addtogroup group_xf_task_ctask
  * @}
  */
 
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @ingroup group_xf_task_user_ttask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ttask
+ * @endcond
  * @{
  */
 
@@ -166,7 +167,7 @@ xf_task_t xf_ttask_create_loop(xf_task_func_t func, void *func_arg, uint16_t pri
 }
 
 /**
- * End of group_xf_task_user_ttask
+ * End of addtogroup group_xf_task_ttask
  * @}
  */
 
@@ -177,12 +178,14 @@ xf_task_t xf_ntask_create(xf_task_func_t func, void *func_arg, uint16_t priority
                                        NULL);
 }
 
-#if XF_TASK_POOL_IS_ENABLE
+#if XF_TASK_POOL_IS_ENABLE || defined(__DOXYGEN__)
 
-#if XF_TASK_CONTEXT_IS_ENABLE
+#if XF_TASK_CONTEXT_IS_ENABLE || defined(__DOXYGEN__)
 
 /**
- * @ingroup group_xf_task_user_ctask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ctask
+ * @endcond
  * @{
  */
 
@@ -222,7 +225,9 @@ static inline xf_task_pool_t xf_ctask_pool_create(uint32_t max_works, size_t sta
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * @ingroup group_xf_task_user_ttask
+ * @cond XFAPI_USER
+ * @addtogroup group_xf_task_ttask
+ * @endcond
  * @{
  */
 
@@ -257,7 +262,7 @@ static inline xf_task_pool_t xf_ttask_pool_create(uint32_t max_works, uint32_t d
 }
 
 /**
- * End of group_xf_task_user_ttask
+ * End of group_xf_task_ttask
  * @}
  */
 

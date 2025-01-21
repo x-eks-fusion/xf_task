@@ -18,9 +18,11 @@
 #include "xf_task_kernel.h"
 
 /**
+ * @cond XFAPI_INTERNAL
  * @ingroup group_xf_task_internal
  * @defgroup group_xf_task_internal_base base
  * @brief 任务父对象。
+ * @endcond
  * @{
  */
 

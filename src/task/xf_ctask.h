@@ -17,9 +17,11 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_ctask ctask
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_ctask ctask
  * @brief 有栈协程。
+ * @endcond
  * @{
  */
 
@@ -130,7 +132,7 @@ xf_err_t xf_ctask_queue_receive(xf_ctask_queue_t queue, void *buffer, uint32_t t
 #endif // XF_TASK_CONTEXT_IS_ENABLE
 
 /**
- * End of group_xf_task_user_ctask
+ * End of group_xf_task_ctask
  * @}
  */
 

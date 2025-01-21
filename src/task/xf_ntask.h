@@ -17,9 +17,11 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_ntask ntask
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_ntask ntask
  * @brief 无栈协程。
+ * @endcond
  * @{
  */
 
@@ -278,7 +280,7 @@ typedef void xf_async_t;
 #endif
 
 /**
- * End of group_xf_task_user_ttask
+ * End of group_xf_task_ntask
  * @}
  */
 

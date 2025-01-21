@@ -17,9 +17,11 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_task_manager_default task_manager_default
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_task_manager_default task_manager_default
  * @brief 用于简化调用的默认任务管理器。
+ * @endcond
  * @{
  */
 
@@ -96,7 +98,7 @@ xf_task_t xf_task_create(xf_task_type_t type, xf_task_func_t func, void *func_ar
 #endif
 
 /**
- * End of group_xf_task_user_task_manager_default
+ * End of group_xf_task_task_manager_default
  * @}
  */
 

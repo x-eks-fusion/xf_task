@@ -17,9 +17,11 @@
 #include "../kernel/xf_task_kernel.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_ttask ttask
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_ttask ttask
  * @brief 定时器任务。
+ * @endcond
  * @{
  */
 
@@ -123,7 +125,7 @@ xf_err_t xf_ttask_set_count_max(xf_task_t task, uint32_t count_max);
 #endif
 
 /**
- * End of group_xf_task_user_ttask
+ * End of group_xf_task_ttask
  * @}
  */
 
