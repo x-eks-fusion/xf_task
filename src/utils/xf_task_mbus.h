@@ -21,9 +21,11 @@
 #include "xf_utils.h"
 
 /**
- * @ingroup group_xf_task_user
- * @defgroup group_xf_task_user_mbus mbus
+ * @cond XFAPI_USER
+ * @ingroup group_xf_task
+ * @defgroup group_xf_task_mbus mbus
  * @brief 消息总线（发布订阅）。
+ * @endcond
  * @{
  */
 
@@ -139,7 +141,7 @@ void xf_task_mbus_handle(void);
 #endif
 
 /**
- * End of group_xf_task_user_mbus
+ * End of group_xf_task_mbus
  * @}
  */
 
