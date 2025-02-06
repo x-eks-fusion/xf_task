@@ -74,7 +74,7 @@ void xf_ctask_delay_with_manager(xf_task_manager_t manager, uint32_t delay_ms)
     xf_ctask_handle_t *task = xf_task_manager_get_current_task(manager);
 
     if (task->base.type != XF_TASK_TYPE_CTASK) {
-        XF_LOGE(TAG, "only ctask can use this function");
+        XF_LOGE(TAG, "only ctask can use this function:%d", task->base.type);
         return;
     }
 
