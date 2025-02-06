@@ -39,13 +39,6 @@ extern "C" {
 
 /* ==================== [Typedefs] ========================================== */
 
-/**
- * @brief ntask 信号量结构体。
- */
-typedef struct _xf_ntask_sem_t {
-    uint32_t count;
-} xf_ntask_sem_t;
-
 typedef int(*xf_ntask_compare_func_t)(xf_task_t task);
 
 typedef enum _xf_ntask_status_t {
