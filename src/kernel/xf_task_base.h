@@ -115,9 +115,9 @@ typedef struct _xf_task_base_t {
     xf_task_manager_t manager;      /*!< 保存 task 所属的 manager ，以便更快访问 manager */
     xf_task_func_t func;            /*!< 每个任务所执行的内容 */
     void *arg;                      /*!< 任务中用户定义参数 */
-    uint32_t type:      1;          /*!< 任务类型，见 @ref xf_task_type_t */
+    uint32_t type:      2;          /*!< 任务类型，见 @ref xf_task_type_t */
     uint32_t state:     3;          /*!< 任务状态，见 @ref xf_task_state_t */
-    uint32_t flag:      9;          /*!< 任务标志位，外部设置的标志位，内部只会读取不会设置 */
+    uint32_t flag:      8;          /*!< 任务标志位，外部设置的标志位，内部只会读取不会设置 */
     uint32_t signal:    9;          /*!< 任务间信号，内部传递消息使用，外部无法设置，
                                      *   见 XF_TASK_SIGNAL_* 宏 */
     uint32_t priority:  10;         /*!< 任务优先级，具体最大值参考 @ref XF_TASK_PRIORITY_LEVELS */
