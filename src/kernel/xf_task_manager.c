@@ -299,7 +299,7 @@ xf_err_t xf_task_manager_set_compensation_time(xf_task_manager_t manager, xf_tas
     xf_task_manager_handle_t *manager_handle = (xf_task_manager_handle_t *)manager;
     xf_task_base_t *task, *_task;
     xf_task_time_t compensation_ticks = xf_task_msec_to_ticks(time_ms);
-    xf_list_for_each_entry_safe(task, _task, &manager_handle->blocked_list, xf_task_base_t, hunger_node) {
+    xf_list_for_each_entry_safe(task, _task, &manager_handle->blocked_list, xf_task_base_t, node) {
         task->wake_up -= compensation_ticks;
     }
 
