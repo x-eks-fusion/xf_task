@@ -13,6 +13,7 @@
 
 #include "xf_task_mbus.h"
 #include "xf_task_queue.h"
+#include "../xf_task.h"
 
 /* ==================== [Defines] =========================================== */
 
@@ -38,10 +39,12 @@ typedef struct _xf_task_xsub_t {
 
 static void xf_task_mbus_run(xf_task_mtopic_t *mtopic, void *data);
 static xf_err_t xf_task_mbus_find(uint32_t topic_id, xf_task_mtopic_t **topic);
+static void mbus_task(xf_task_t task);
 
 /* ==================== [Static Variables] ================================== */
 
 static xf_list_t _topic_list = XF_LIST_HEAD_INIT(_topic_list);
+static xf_task_t _mbus_task = NULL;
 
 /* ==================== [Macros] ============================================ */
 
@@ -63,6 +66,11 @@ xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size)
         return XF_ERR_NO_MEM;
     }
 
+    if (_mbus_task == NULL)
+    {
+        _mbus_task = xf_ttask_create_loop(mbus_task, NULL, 0, 0);
+    }
+    
     xf_list_init(&mtopic->node);
     xf_list_init(&mtopic->sub_list);
     xf_task_queue_init(&mtopic->pub_queue, buf, size, DEFAULT_QUEUE_COUNT);
@@ -90,6 +98,9 @@ xf_err_t xf_task_mbus_unreg_topic(uint32_t topic_id)
     xf_list_del_init(&mtopic->node);
     xf_free(mtopic);
 
+    xf_task_delete(_mbus_task);
+    _mbus_task = NULL;
+
     return XF_OK;
 }
 
@@ -105,6 +116,7 @@ xf_err_t xf_task_mbus_pub_async(uint32_t topic_id, void *data)
     }
 
     xf_err_t err = xf_task_queue_send(&mtopic->pub_queue, data, XF_TASK_QUEUE_SEND_TO_BACK);
+    xf_task_trigger(_mbus_task);
     return err;
 }
 
@@ -204,19 +216,6 @@ xf_err_t xf_task_mbus_unsub_all(uint32_t topic_id)
     return XF_OK;
 }
 
-void xf_task_mbus_handle(void)
-{
-    // 循环执行订阅回调
-    xf_task_mtopic_t *mtopic;
-    xf_list_for_each_entry(mtopic, &_topic_list, xf_task_mtopic_t, node) {
-        while (!xf_task_queue_is_empty(&mtopic->pub_queue)) {
-            void *pub_data = xf_task_queue_peek(&mtopic->pub_queue);
-            xf_task_mbus_run(mtopic, pub_data);
-            xf_task_queue_remove_front(&mtopic->pub_queue);
-        }
-    }
-}
-
 /* ==================== [Static Functions] ================================== */
 
 static void xf_task_mbus_run(xf_task_mtopic_t *mtopic, void *data)
@@ -240,6 +239,19 @@ static xf_err_t xf_task_mbus_find(uint32_t topic_id, xf_task_mtopic_t **topic)
     }
 
     return XF_ERR_NOT_FOUND;
+}
+
+static void mbus_task(xf_task_t task)
+{
+    // 循环执行订阅回调
+    xf_task_mtopic_t *mtopic;
+    xf_list_for_each_entry(mtopic, &_topic_list, xf_task_mtopic_t, node) {
+        while (!xf_task_queue_is_empty(&mtopic->pub_queue)) {
+            void *pub_data = xf_task_queue_peek(&mtopic->pub_queue);
+            xf_task_mbus_run(mtopic, pub_data);
+            xf_task_queue_remove_front(&mtopic->pub_queue);
+        }
+    }
 }
 
 #endif // XF_TASK_MBUS_IS_ENABLE
