@@ -65,7 +65,7 @@ xf_task_pool_t xf_task_pool_create_with_manager(uint32_t max_works, xf_task_mana
         pool->tasks[i] = xf_task_create_with_manager(manager, type, xf_task_pool_default_task, NULL, 0, config);
         xf_task_base_t *task_base = (xf_task_base_t *)pool->tasks[i];
         task_base->delete = xf_task_pool_recycle;
-        xf_task_suspend(pool->tasks[i]);
+        xf_task_delete(pool->tasks[i]);
     }
 
     return pool;
@@ -99,7 +99,7 @@ xf_task_t xf_task_init_from_pool(xf_task_pool_t pool, xf_task_func_t func, void 
     // 遍历任务，找到被回收的任务，重复使用
     for (size_t i = 0; i < pool_handle->max_works; i++) {
         xf_task_base_t *task_base = (xf_task_base_t *)pool_handle->tasks[i];
-        if (task_base->state == XF_TASK_STATE_SUSPEND) {
+        if (task_base->state == XF_TASK_STATE_DELETE) {
             xf_task_reset(task_base);
             task_base->func = func;
             task_base->arg = func_arg;
@@ -121,12 +121,7 @@ static void xf_task_pool_default_task(xf_task_t task)
 // 替换原先的删除函数，让任务挂起，后续继续分配
 static void xf_task_pool_recycle(xf_task_t task)
 {
-    xf_task_base_t *task_base = (xf_task_base_t *)task;
-
-    // 此时已经出于删除态，
-    // 需要强行修改当前状态，不然后续的挂起操作无法生效
-    task_base->state = XF_TASK_STATE_READY;
-    xf_task_suspend(task);
+    // 不会删除任务，会脱离任务管理器，后续继续分配
 }
 
 #endif

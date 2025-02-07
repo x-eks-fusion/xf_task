@@ -262,6 +262,30 @@ static inline xf_task_pool_t xf_ttask_pool_create(uint32_t max_works, uint32_t d
 }
 
 /**
+ * @brief 在指定的任务管理下，创建 ntask 任务池。
+ *
+ * @param max_works 任务池最大工作任务数。
+ * @param manager 任务管理器。
+ * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
+ */
+static inline xf_task_pool_t xf_ntask_pool_create_with_manager(uint32_t max_works, xf_task_manager_t manager)
+{
+    return xf_task_pool_create_with_manager(max_works, manager, XF_TASK_TYPE_NTASK, NULL);
+}
+
+/**
+ * @brief 在默认的任务管理下，创建 ntask 任务池。
+ *
+ * @param max_works 任务池最大工作任务数。
+ * @return xf_task_pool_t 任务池对象，返回为 NULL 则表示创建失败
+ */
+static inline xf_task_pool_t xf_ntask_pool_create(uint32_t max_works)
+{
+    return xf_task_pool_create_with_manager(max_works, xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, NULL);
+}
+
+
+/**
  * End of group_xf_task_ttask
  * @}
  */
