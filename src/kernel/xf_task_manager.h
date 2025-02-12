@@ -144,6 +144,17 @@ xf_err_t xf_task_manager_task_destory(xf_task_manager_t manager, xf_task_t task)
  */
 xf_err_t xf_task_manager_task_blocked(xf_task_manager_t manager, xf_task_t task);
 
+/**
+ * @brief 设置补偿时间，当出于 tickless 的时候，系统时钟会进入休眠，此时需要补偿时间
+ * 
+ * @param manager 任务管理器对象
+ * @param time_ms 补偿时间
+ * @return xf_err_t
+ *      - XF_ERR_INVALID_ARG 参数错误
+ *      - XF_OK 设置补偿时间成功
+ */
+xf_err_t xf_task_manager_set_compensation_time(xf_task_manager_t manager, xf_task_time_t time_ms);
+
 /* ==================== [Macros] ============================================ */
 
 #ifdef __cplusplus

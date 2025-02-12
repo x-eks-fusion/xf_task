@@ -21,11 +21,6 @@ static void task_pub(xf_task_t task)
     xf_task_mbus_pub_sync(TOPIC_ID, &num);
 }
 
-static void mbus_handle(xf_task_t task)
-{
-    xf_task_mbus_handle();
-}
-
 /**
  * @brief 订阅回调函数，用于处理用户发布的消息
  *
@@ -52,8 +47,6 @@ int main()
     xf_task_mbus_reg_topic(TOPIC_ID, sizeof(int));
     // 订阅这个topic，设置处理topic的回调
     xf_task_mbus_sub(TOPIC_ID, bus_cb, NULL);
-
-    xf_ttask_create_loop(mbus_handle, NULL, 0, 10);
     // 任务管理器，启动
     while (1) {
         xf_task_manager_run_default();

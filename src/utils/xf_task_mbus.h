@@ -127,13 +127,6 @@ xf_err_t xf_task_mbus_unsub(uint32_t topic_id, xf_task_mbus_func_t mbus_cb);
  */
 xf_err_t xf_task_mbus_unsub_all(uint32_t topic_id);
 
-/**
- * @brief 处理异步的消息。
- *
- * @note 给异步订阅使用的，需要循环调用。
- */
-void xf_task_mbus_handle(void);
-
 /* ==================== [Macros] ============================================ */
 
 #ifdef __cplusplus

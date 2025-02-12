@@ -28,20 +28,13 @@
 
 typedef struct _xf_task_pool_handle_t {
     uint32_t max_works;
-    xf_list_t pool_list;
-    xf_list_t used_list;
+    xf_task_t *tasks;
 } xf_task_pool_handle_t;
-
-typedef struct _xf_pool_task_t {
-    xf_list_t node;
-    xf_task_t task;
-    xf_task_pool_handle_t *pool;
-} xf_pool_task_t;
 
 /* ==================== [Static Prototypes] ================================= */
 
 static void xf_task_pool_default_task(xf_task_t task);
-static void xf_task_delete_(xf_task_t task);
+static void xf_task_pool_recycle(xf_task_t task);
 
 /* ==================== [Static Variables] ================================== */
 
@@ -58,27 +51,21 @@ xf_task_pool_t xf_task_pool_create_with_manager(uint32_t max_works, xf_task_mana
     XF_ASSERT(config, NULL, TAG, "config must not be NULL");
 
     xf_task_pool_handle_t *pool = (xf_task_pool_handle_t *)xf_malloc(sizeof(xf_task_pool_handle_t) +
-                                  sizeof(xf_pool_task_t) * max_works);
+                                  sizeof(xf_task_t) * max_works);
     if (pool == NULL) {
         XF_LOGE(TAG, "memory alloc failed!");
         return NULL;
     }
 
     pool->max_works = max_works;
-    xf_list_init(&pool->pool_list);
-    xf_list_init(&pool->used_list);
 
-    xf_pool_task_t *pool_task = (xf_pool_task_t *)((uint8_t *)pool + sizeof(xf_task_pool_handle_t));
+    pool->tasks = (xf_task_t *)((uint8_t *)pool + sizeof(xf_task_pool_handle_t));
 
     for (size_t i = 0; i < max_works; i++) {
-        pool_task[i].task = xf_task_create_with_manager(manager, type, xf_task_pool_default_task, NULL, 0, config);
-        xf_task_base_t *task_base = (xf_task_base_t *)pool_task[i].task;
-        task_base->user_data = &pool_task[i];
-        task_base->delete = xf_task_delete_;
-        pool_task[i].pool = pool;
-        xf_task_suspend(pool_task[i].task);
-        xf_list_init(&pool_task[i].node);
-        xf_list_add_tail(&pool_task[i].node, &pool->pool_list);
+        pool->tasks[i] = xf_task_create_with_manager(manager, type, xf_task_pool_default_task, NULL, 0, config);
+        xf_task_base_t *task_base = (xf_task_base_t *)pool->tasks[i];
+        task_base->delete = xf_task_pool_recycle;
+        xf_task_delete(pool->tasks[i]);
     }
 
     return pool;
@@ -89,17 +76,13 @@ xf_err_t xf_task_pool_delete(xf_task_pool_t pool)
     XF_ASSERT(pool, XF_ERR_INVALID_ARG, TAG, "pool must not be NULL");
     xf_task_pool_handle_t *pool_handle = (xf_task_pool_handle_t *)pool;
 
-    xf_pool_task_t *task_pool;
-    xf_list_for_each_entry(task_pool, &pool_handle->pool_list, xf_pool_task_t, node) {
-        xf_task_base_t *handle = (xf_task_base_t *)task_pool->task;
-        handle->delete = xf_task_destructor;
-        xf_task_delete(task_pool->task);
+    // 遍历，删除所有任务
+    for (size_t i = 0; i < pool_handle->max_works; i++) {
+        xf_task_base_t *task_base = (xf_task_base_t *)pool_handle->tasks[i];
+        task_base->delete = xf_task_destructor;
+        xf_task_delete(task_base);
     }
-    xf_list_for_each_entry(task_pool, &pool_handle->used_list, xf_pool_task_t, node) {
-        xf_task_base_t *handle = (xf_task_base_t *)task_pool->task;
-        handle->delete = xf_task_destructor;
-        xf_task_delete(task_pool->task);
-    }
+
     xf_free(pool);
 
     return XF_OK;
@@ -113,18 +96,19 @@ xf_task_t xf_task_init_from_pool(xf_task_pool_t pool, xf_task_func_t func, void 
 
     xf_task_pool_handle_t *pool_handle = (xf_task_pool_handle_t *)pool;
 
-    xf_pool_task_t *pool_task = xf_list_first_entry(&pool_handle->pool_list, xf_pool_task_t, node);
-
-    xf_list_del_init(&pool_task->node);
-    xf_list_add_tail(&pool_task->node, &pool_handle->used_list);
-
-    xf_task_reset(pool_task->task);
-    xf_task_base_t *handle = (xf_task_base_t *)pool_task->task;
-    handle->func = func;
-    handle->arg = func_arg;
-    handle->priority = priority;
-
-    return pool_task->task;
+    // 遍历任务，找到被回收的任务，重复使用
+    for (size_t i = 0; i < pool_handle->max_works; i++) {
+        xf_task_base_t *task_base = (xf_task_base_t *)pool_handle->tasks[i];
+        if (task_base->state == XF_TASK_STATE_DELETE) {
+            xf_task_reset(task_base);
+            task_base->func = func;
+            task_base->arg = func_arg;
+            task_base->priority = priority;
+            return task_base;
+        }
+    }
+    XF_LOGW(TAG, "no task can be init from pool");
+    return NULL;
 }
 
 /* ==================== [Static Functions] ================================== */
@@ -134,19 +118,10 @@ static void xf_task_pool_default_task(xf_task_t task)
     UNUSED(task);
 }
 
-static void xf_task_delete_(xf_task_t task)
+// 替换原先的删除函数，让任务挂起，后续继续分配
+static void xf_task_pool_recycle(xf_task_t task)
 {
-    xf_task_base_t *task_base = (xf_task_base_t *)task;
-    xf_pool_task_t *pool_task = (xf_pool_task_t *)task_base->user_data;
-    xf_task_pool_handle_t *pool = (xf_task_pool_handle_t *)pool_task->pool;
-
-    // 此时已经出于删除态，
-    // 需要强行修改当前状态，不然后续的挂起操作无法生效
-    task_base->state = XF_TASK_STATE_READY;
-    xf_task_suspend(task);
-
-    xf_list_del_init(&pool_task->node);
-    xf_list_add_tail(&pool_task->node, &pool->pool_list);
+    // 不会删除任务，会脱离任务管理器，后续继续分配
 }
 
 #endif

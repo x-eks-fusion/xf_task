@@ -91,6 +91,17 @@ xf_err_t xf_task_set_urgent_task(xf_task_t task, bool force);
  */
 xf_task_t xf_task_create(xf_task_type_t type, xf_task_func_t func, void *func_arg, uint16_t priority, void *config);
 
+/**
+ * @brief 给默认 manager 设置补偿时间，当处于 tickless 的时候，系统时钟会进入休眠，此时需要补偿时间
+ *
+ * @param manager 任务管理器对象
+ * @param time_ms 补偿时间
+ * @return xf_err_t
+ *      - XF_ERR_INVALID_ARG 参数错误
+ *      - XF_OK 设置补偿时间成功
+ */
+xf_err_t xf_task_manager_set_compensation_time_default(xf_task_time_t time_ms);
+
 /* ==================== [Macros] ============================================ */
 
 #ifdef __cplusplus
