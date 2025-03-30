@@ -50,6 +50,12 @@ typedef enum _xf_ntask_status_t {
     XF_NTASK_FINSHED,
 } xf_ntask_status_t;
 
+typedef struct _xf_ntask_stack_t
+{
+    void* addr;
+    uint32_t size;
+}xf_ntask_stack_t;
+
 /* ==================== [Global Prototypes] ================================= */
 
 /**
@@ -76,64 +82,10 @@ xf_task_t xf_ntask_create_with_manager(xf_task_manager_t manager, xf_task_func_t
  */
 void xf_ntask_set_compare(xf_task_t task, xf_ntask_compare_func_t compare);
 
-/**
- * @brief 获取保存的整数变量
- *
- * @param task 任务对象
- * @param name 整数变量名称
- * @return int 获取到的整数变量
- */
-int xf_ntask_args_get_int(xf_task_t *task, const char *name);
-
-/**
- * @brief 获取保存的浮点变量
- *
- * @param task 任务对象
- * @param name 浮点变量名称
- * @return float 获取到的浮点变量
- */
-float xf_ntask_args_get_float(xf_task_t *task, const char *name);
-
-/**
- * @brief 获取保存的数组
- *
- * @param task 任务对象
- * @param name 数组名称
- * @return void* 数组地址
- */
-void *xf_ntask_args_get_array(xf_task_t *task, const char *name);
-
-/**
- * @brief 保存整数变量
- *
- * @param task 任务对象
- * @param name 变量名称
- * @param value 整数变量值
- * @return xf_err_t 返回错误码
- */
-xf_err_t xf_ntask_args_set_int(xf_task_t *task, const char *name, int value);
-
-/**
- * @brief 保存浮点变量
- *
- * @param task 任务对象
- * @param name 变量名称
- * @param value 浮点变量值
- * @return xf_err_t 返回错误码
- */
-xf_err_t xf_ntask_args_set_float(xf_task_t *task, const char *name, float value);
-
-/**
- * @brief 保存数组
- *
- * @param task 任务对象
- * @param name 数组变量名称
- * @param value 数组变量值
- * @param size 数组元素大小
- * @param len 数组元素个数
- * @return xf_err_t 返回错误码
- */
-xf_err_t xf_ntask_args_set_array(xf_task_t *task, const char *name, void *value, unsigned int size, unsigned int len);
+void *xf_ntask_args_create(xf_task_t task, const char *name, unsigned int size);
+void *xf_ntask_args_find(xf_task_t task, const char *name);
+xf_err_t xf_ntask_stack_load(xf_task_t task, const char *name, xf_ntask_stack_t *stack, uint32_t len);
+xf_err_t xf_ntask_stack_save(xf_task_t task, const char *name, xf_ntask_stack_t *stack, uint32_t len);
 
 /**
  * @brief 获取上下文位置 （给宏调用）
@@ -183,12 +135,118 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
 
 /* ==================== [Macros] ============================================ */
 
-#define XF_NTASK_BEGIN(ntask)       \
-    xf_task_t *_ntask = ntask;      \
+#define EVAL4(...) EVAL3(EVAL3(EVAL3(EVAL3(__VA_ARGS__))))
+#define EVAL3(...) EVAL2(EVAL2(EVAL2(EVAL2(__VA_ARGS__))))
+#define EVAL2(...) EVAL1(EVAL1(EVAL1(EVAL1(__VA_ARGS__))))
+#define EVAL1(...) __VA_ARGS__
+
+#define XF_NTASK_GAP
+#define XF_NTASK_DROP(...)
+
+//
+#define XF_NTASK_NARG(...) EVAL4(XF_NTASK_NARG_ONCE0(__VA_ARGS__, (), (), 0))
+#define XF_NTASK_NARG_ONCE0(argTask, argType, argName, ...) XF_NTASK_NARG_NEXT00(argTask, argType, argName, XF_NTASK_NARG_LAST0 argName, XF_NTASK_NARG_BACK0, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_NARG_ONCE1(argTask, argType, argName, ...) XF_NTASK_NARG_NEXT10(argTask, argType, argName, XF_NTASK_NARG_LAST1 argName, XF_NTASK_NARG_BACK1, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_NARG_LAST0(...) 0, XF_NTASK_NARG_LAST_NONE
+#define XF_NTASK_NARG_LAST1(...) 0, XF_NTASK_NARG_LAST_MANY
+#define XF_NTASK_NARG_NEXT00(...) XF_NTASK_NARG_NEXT01(__VA_ARGS__)
+#define XF_NTASK_NARG_NEXT10(...) XF_NTASK_NARG_NEXT11(__VA_ARGS__)
+#define XF_NTASK_NARG_NEXT01(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+#define XF_NTASK_NARG_NEXT11(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+
+#define XF_NTASK_NARG_LAST_NONE(argTask, argType, argName) XF_NTASK_DROP
+#define XF_NTASK_NARG_BACK0(argTask, argType, argName) +1 XF_NTASK_NARG_ONCE1
+#define XF_NTASK_NARG_BACK1(argTask, argType, argName) +1 XF_NTASK_NARG_ONCE1
+#define XF_NTASK_NARG_LAST_MANY(argTask, argType, argName) XF_NTASK_DROP
+
+//
+#define XF_NTASK_SIZEOF(...) EVAL4(XF_NTASK_SIZEOF_ONCE0(__VA_ARGS__, (), (), 0))
+#define XF_NTASK_SIZEOF_ONCE0(argTask, argType, argName, ...) XF_NTASK_SIZEOF_NEXT00(argTask, argType, argName, XF_NTASK_SIZEOF_LAST0 argName, XF_NTASK_SIZEOF_BACK0, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_SIZEOF_ONCE1(argTask, argType, argName, ...) XF_NTASK_SIZEOF_NEXT10(argTask, argType, argName, XF_NTASK_SIZEOF_LAST1 argName, XF_NTASK_SIZEOF_BACK1, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_SIZEOF_LAST0(...) 0, XF_NTASK_SIZEOF_LAST_NONE
+#define XF_NTASK_SIZEOF_LAST1(...) 0, XF_NTASK_SIZEOF_LAST_MANY
+#define XF_NTASK_SIZEOF_NEXT00(...) XF_NTASK_SIZEOF_NEXT01(__VA_ARGS__)
+#define XF_NTASK_SIZEOF_NEXT10(...) XF_NTASK_SIZEOF_NEXT11(__VA_ARGS__)
+#define XF_NTASK_SIZEOF_NEXT01(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+#define XF_NTASK_SIZEOF_NEXT11(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+
+#define XF_NTASK_SIZEOF_LAST_NONE(argTask, argType, argName) XF_NTASK_DROP
+#define XF_NTASK_SIZEOF_BACK0(argTask, argType, argName) +sizeof(argType) XF_NTASK_SIZEOF_ONCE1
+#define XF_NTASK_SIZEOF_BACK1(argTask, argType, argName) +sizeof(argType) XF_NTASK_SIZEOF_ONCE1
+#define XF_NTASK_SIZEOF_LAST_MANY(argTask, argType, argName) XF_NTASK_DROP
+
+//
+#define XF_NTASK_STK_DECL(...) EVAL4(XF_NTASK_STK_DECL_ONCE0(__VA_ARGS__, (), 0))
+#define XF_NTASK_STK_DECL_ONCE0(argTask, argType, argName, ...) XF_NTASK_STK_DECL_NEXT0(argTask, argType, argName, XF_NTASK_STK_DECL_LAST0 argName, XF_NTASK_STK_DECL_LAST_MANY, __VA_ARGS__)
+#define XF_NTASK_STK_DECL_LAST0(...) 0, XF_NTASK_STK_DECL_LAST_NONE
+#define XF_NTASK_STK_DECL_NEXT0(...) XF_NTASK_STK_DECL_NEXT1(__VA_ARGS__)
+#define XF_NTASK_STK_DECL_NEXT1(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName, __VA_ARGS__)
+
+#define XF_NTASK_STK_DECL_LAST_NONE(argTask, argType, argName, d, ...) xf_ntask_stack_t *_stack = NULL
+#define XF_NTASK_STK_DECL_LAST_MANY(argTask, argType, argName, ...) xf_ntask_stack_t _stack[0 XF_NTASK_NARG_ONCE0(argTask, argType, argName, __VA_ARGS__)] = {XF_NTASK_STK_ITEM_ONCE0(argTask, argType, argName, __VA_ARGS__)}
+
+//
+#define XF_NTASK_STK_ITEM(...) EVAL4(XF_NTASK_STK_ITEM_ONCE0(__VA_ARGS__, (), (), 0))
+#define XF_NTASK_STK_ITEM_ONCE0(argTask, argType, argName, ...) XF_NTASK_STK_ITEM_NEXT00(argTask, argType, argName, XF_NTASK_STK_ITEM_LAST0 argName, XF_NTASK_STK_ITEM_BACK0, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_STK_ITEM_ONCE1(argTask, argType, argName, ...) XF_NTASK_STK_ITEM_NEXT10(argTask, argType, argName, XF_NTASK_STK_ITEM_LAST1 argName, XF_NTASK_STK_ITEM_BACK1, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_STK_ITEM_LAST0(...) 0, XF_NTASK_STK_ITEM_LAST_NONE
+#define XF_NTASK_STK_ITEM_LAST1(...) 0, XF_NTASK_STK_ITEM_LAST_MANY
+#define XF_NTASK_STK_ITEM_NEXT00(...) XF_NTASK_STK_ITEM_NEXT01(__VA_ARGS__)
+#define XF_NTASK_STK_ITEM_NEXT10(...) XF_NTASK_STK_ITEM_NEXT11(__VA_ARGS__)
+#define XF_NTASK_STK_ITEM_NEXT01(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+#define XF_NTASK_STK_ITEM_NEXT11(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+
+#define XF_NTASK_STK_ITEM_LAST_NONE(argTask, argType, argName) XF_NTASK_DROP
+#define XF_NTASK_STK_ITEM_BACK0(argTask, argType, argName) {.addr = &argName, .size = sizeof(argType)} XF_NTASK_STK_ITEM_ONCE1
+#define XF_NTASK_STK_ITEM_BACK1(argTask, argType, argName) , {.addr = &argName, .size = sizeof(argType)} XF_NTASK_STK_ITEM_ONCE1
+#define XF_NTASK_STK_ITEM_LAST_MANY(argTask, argType, argName) XF_NTASK_DROP
+
+//
+#define XF_NTASK_VAR_DECL(...) EVAL4(XF_NTASK_VAR_DECL_ONCE0(__VA_ARGS__, (), (), 0))
+#define XF_NTASK_VAR_DECL_ONCE0(argTask, argType, argName, ...) XF_NTASK_VAR_DECL_NEXT00(argTask, argType, argName, XF_NTASK_VAR_DECL_LAST0 argName, XF_NTASK_VAR_DECL_BACK0, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_VAR_DECL_ONCE1(argTask, argType, argName, ...) XF_NTASK_VAR_DECL_NEXT10(argTask, argType, argName, XF_NTASK_VAR_DECL_LAST1 argName, XF_NTASK_VAR_DECL_BACK1, 0)(argTask, __VA_ARGS__)
+#define XF_NTASK_VAR_DECL_LAST0(...) 0, XF_NTASK_VAR_DECL_LAST_NONE
+#define XF_NTASK_VAR_DECL_LAST1(...) 0, XF_NTASK_VAR_DECL_LAST_MANY
+#define XF_NTASK_VAR_DECL_NEXT00(...) XF_NTASK_VAR_DECL_NEXT01(__VA_ARGS__)
+#define XF_NTASK_VAR_DECL_NEXT10(...) XF_NTASK_VAR_DECL_NEXT11(__VA_ARGS__)
+#define XF_NTASK_VAR_DECL_NEXT01(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+#define XF_NTASK_VAR_DECL_NEXT11(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName)
+
+#define XF_NTASK_VAR_DECL_LAST_NONE(argTask, argType, argName) XF_NTASK_DROP
+#define XF_NTASK_VAR_DECL_BACK0(argTask, argType, argName) \
+    argType argName;                                       \
+    XF_NTASK_VAR_DECL_ONCE1
+#define XF_NTASK_VAR_DECL_BACK1(argTask, argType, argName) \
+    argType argName;                                       \
+    XF_NTASK_VAR_DECL_ONCE1
+#define XF_NTASK_VAR_DECL_LAST_MANY(argTask, argType, argName) XF_NTASK_DROP
+
+//
+#define XF_NTASK_ARG_CREATE(...) EVAL4(XF_NTASK_ARG_CREATE_ONCE0(__VA_ARGS__, (), 0))
+#define XF_NTASK_ARG_CREATE_ONCE0(argTask, argType, argName, ...) XF_NTASK_ARG_CREATE_NEXT0(argTask, argType, argName, XF_NTASK_ARG_CREATE_LAST0 argName, XF_NTASK_ARG_CREATE_LAST_MANY, __VA_ARGS__)
+#define XF_NTASK_ARG_CREATE_LAST0(...) 0, XF_NTASK_ARG_CREATE_LAST_NONE
+#define XF_NTASK_ARG_CREATE_NEXT0(...) XF_NTASK_ARG_CREATE_NEXT1(__VA_ARGS__)
+#define XF_NTASK_ARG_CREATE_NEXT1(argTask, argType, argName, drop, func, ...) func XF_NTASK_GAP(argTask, argType, argName, __VA_ARGS__)
+
+#define XF_NTASK_ARG_CREATE_LAST_NONE(argTask, argType, argName, d, ...)
+#define XF_NTASK_ARG_CREATE_LAST_MANY(argTask, argType, argName, ...) xf_ntask_args_create(_ntask, __func__, 0 XF_NTASK_SIZEOF_ONCE0(argTask, argType, argName, __VA_ARGS__));
+
+//
+#define XF_NTASK_BEGIN_IMPL(ntask)            \
+    xf_task_t *_ntask = ntask;                \
     switch (xf_ntask_get_lc(ntask, __func__)) \
-    {                               \
+    {                                         \
     case 0:
 
+#define XF_NTASK_BEGIN_A(ntask, ...)                            \
+    XF_NTASK_VAR_DECL(ntask, __VA_ARGS__)                       \
+    uint32_t _stack_size = 0 XF_NTASK_NARG(ntask, __VA_ARGS__); \
+    XF_NTASK_STK_DECL(ntask, __VA_ARGS__);                      \
+    XF_NTASK_BEGIN_IMPL(ntask)                                  \
+    XF_NTASK_ARG_CREATE(ntask, __VA_ARGS__)
+
+#define XF_NTASK_BEGIN(...) XF_NTASK_BEGIN_A(__VA_ARGS__, (), ())
+   
 #define XF_NTASK_END()    \
     }                          \
     xf_ntask_set_lc(_ntask, __func__, 0); \
@@ -205,8 +263,10 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
         xf_task_trigger(_ntask);             \
         xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
         xf_ntask_set_exit_status(_ntask, XF_NTASK_YIELDED); \
+        xf_ntask_stack_save(_ntask, __func__, &_stack, _stack_size);\
         return;                             \
-    case __LINE__:;                         \
+    case __LINE__:                          \
+        xf_ntask_stack_load(_ntask, __func__, &_stack, _stack_size);\
     } while (0)
 
 #define xf_ntask_until(compare_cb)             \
@@ -215,8 +275,10 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
         xf_ntask_set_compare(_ntask, compare_cb);      \
         xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
         xf_ntask_set_exit_status(_ntask, XF_NTASK_WAITING); \
+        xf_ntask_stack_save(_ntask, __func__, &_stack, _stack_size);\
         return;                             \
-    case __LINE__:;                         \
+    case __LINE__:                          \
+        xf_ntask_stack_load(_ntask, __func__, &_stack, _stack_size);\
     } while (0)
 
 #define xf_ntask_delay(delay_ms)     \
@@ -225,8 +287,10 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
         xf_task_set_delay(_ntask, delay_ms); \
         xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
         xf_ntask_set_exit_status(_ntask, XF_NTASK_WAITING); \
+        xf_ntask_stack_save(_ntask, __func__, &_stack, _stack_size);\
         return;                             \
-    case __LINE__:;                         \
+    case __LINE__:                          \
+        xf_ntask_stack_load(_ntask, __func__, &_stack, _stack_size);\
     } while (0)
 
 #define xf_ntask_until_timeout(compare_cb, timeout_ms) \
@@ -236,8 +300,10 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
         xf_ntask_set_compare(_ntask, compare_cb);      \
         xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
         xf_ntask_set_exit_status(_ntask, XF_NTASK_WAITING); \
+        xf_ntask_stack_save(_ntask, __func__, &_stack, _stack_size);\
         return;                             \
-    case __LINE__:;                         \
+    case __LINE__:                          \
+        xf_ntask_stack_load(_ntask, __func__, &_stack, _stack_size);\
     } while (0)
 
 #define xf_ntask_exit()                \
@@ -255,12 +321,15 @@ bool xf_ntask_lc_is_first(xf_task_t *task, const char *name);
 typedef void xf_async_t;
 
 #define xf_await(func)                      \
+    xf_ntask_stack_save(_ntask, __func__, &_stack, _stack_size);\
     case __LINE__:                          \
+    xf_ntask_stack_load(_ntask, __func__, &_stack, _stack_size);\
     func;\
     int _async_status = xf_ntask_get_exit_status(_ntask);\
     if (_async_status == XF_NTASK_YIELDED || _async_status == XF_NTASK_WAITING) \
     {\
         xf_ntask_set_lc(_ntask, __func__, __LINE__);   \
+        xf_ntask_stack_save(_ntask, __func__, &_stack, _stack_size);\
         return;                             \
     }\
     else\
