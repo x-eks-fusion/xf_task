@@ -119,10 +119,9 @@ void *xf_ntask_args_find(xf_task_t task, const char *name)
 xf_err_t xf_ntask_stack_load(xf_task_t task, const char *name, xf_ntask_stack_t *stack, uint32_t len)
 {
     if (len == 0) {
-        return;
+        return XF_ERR_INVALID_ARG;
     }
 
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
     void *item = xf_ntask_args_find(task, name);
     if (item == NULL) {
         return XF_ERR_INVALID_ARG;
@@ -132,15 +131,16 @@ xf_err_t xf_ntask_stack_load(xf_task_t task, const char *name, xf_ntask_stack_t 
         xf_memcpy(stack[i].addr, (uint8_t *)item + addr_offset, stack[i].size);
         addr_offset += stack[i].size;
     }
+
+    return XF_OK;
 }
 
 xf_err_t xf_ntask_stack_save(xf_task_t task, const char *name, xf_ntask_stack_t *stack, uint32_t len)
 {
     if (len == 0) {
-        return;
+        return XF_ERR_INVALID_ARG;
     }
 
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
     void *item = xf_ntask_args_find(task, name);
     if (item == NULL) {
         return XF_ERR_INVALID_ARG;
@@ -150,6 +150,8 @@ xf_err_t xf_ntask_stack_save(xf_task_t task, const char *name, xf_ntask_stack_t 
         xf_memcpy((uint8_t *)item + addr_offset, stack[i].addr, stack[i].size);
         addr_offset += stack[i].size;
     }
+
+    return XF_OK;
 }
 
 uint32_t xf_ntask_get_lc(xf_task_t *task, const char *name)

@@ -52,6 +52,7 @@
 #include "utils/xf_task_mbus.h"
 #include "utils/xf_task_queue.h"
 #include "utils/xf_task_pool.h"
+#include "utils/xf_task_event.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -284,6 +285,20 @@ static inline xf_task_pool_t xf_ntask_pool_create(uint32_t max_works)
     return xf_task_pool_create_with_manager(max_works, xf_task_get_default_manager(), XF_TASK_TYPE_NTASK, NULL);
 }
 
+#if XF_TASK_MBUS_IS_ENABLE
+/**
+ * @brief 在默认任务管理器下，注册 mbus
+ * 
+ * @param topic_id 
+ * @param size 
+ * @return xf_err_t 
+ */
+static inline xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size)
+{
+    return xf_task_mbus_reg_topic_with_manager(xf_task_get_default_manager(), topic_id, size);
+}
+
+#endif
 
 /**
  * End of group_xf_task_ttask
