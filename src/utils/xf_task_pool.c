@@ -24,6 +24,9 @@
 
 #define TAG "task_pool"
 
+#define XF_TASK_POOL_DEFAULT_TASK xf_task_empty
+#define XF_TASK_POOL_RECYCLE xf_task_empty
+
 /* ==================== [Typedefs] ========================================== */
 
 typedef struct _xf_task_pool_handle_t {
@@ -33,8 +36,7 @@ typedef struct _xf_task_pool_handle_t {
 
 /* ==================== [Static Prototypes] ================================= */
 
-static void xf_task_pool_default_task(xf_task_t task);
-static void xf_task_pool_recycle(xf_task_t task);
+static void xf_task_empty(xf_task_t task);
 
 /* ==================== [Static Variables] ================================== */
 
@@ -62,9 +64,9 @@ xf_task_pool_t xf_task_pool_create_with_manager(uint32_t max_works, xf_task_mana
     pool->tasks = (xf_task_t *)((uint8_t *)pool + sizeof(xf_task_pool_handle_t));
 
     for (size_t i = 0; i < max_works; i++) {
-        pool->tasks[i] = xf_task_create_with_manager(manager, type, xf_task_pool_default_task, NULL, 0, config);
+        pool->tasks[i] = xf_task_create_with_manager(manager, type, XF_TASK_POOL_DEFAULT_TASK, NULL, 0, config);
         xf_task_base_t *task_base = (xf_task_base_t *)pool->tasks[i];
-        task_base->delete = xf_task_pool_recycle;
+        task_base->delete = XF_TASK_POOL_RECYCLE;
         xf_task_delete(pool->tasks[i]);
     }
 
@@ -113,15 +115,9 @@ xf_task_t xf_task_init_from_pool(xf_task_pool_t pool, xf_task_func_t func, void 
 
 /* ==================== [Static Functions] ================================== */
 
-static void xf_task_pool_default_task(xf_task_t task)
+static void xf_task_empty(xf_task_t task)
 {
     UNUSED(task);
-}
-
-// 替换原先的删除函数，让任务挂起，后续继续分配
-static void xf_task_pool_recycle(xf_task_t task)
-{
-    // 不会删除任务，会脱离任务管理器，后续继续分配
 }
 
 #endif

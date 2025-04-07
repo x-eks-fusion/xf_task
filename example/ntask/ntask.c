@@ -48,13 +48,11 @@ int main(void)
 
 /* ==================== [Static Functions] ================================== */
 
-xf_async_t test(xf_task_t task, int a)
+xf_async_t test(xf_task_t task)
 {
-    XF_NTASK_BEGIN(task);
-
-    printf("task:%d\n", a);
+    XF_NTASK_BEGIN(task, int, a);
+    a = -1;
     xf_ntask_delay(1000);
-    a = xf_ntask_args_get_int(task, "a");
     printf("task:%d\n", a);
 
     XF_NTASK_END();
@@ -62,13 +60,13 @@ xf_async_t test(xf_task_t task, int a)
 
 static void task1(xf_task_t task)
 {
-    XF_NTASK_BEGIN(task);
-
-    int a = 2;
-    xf_ntask_args_set_int(task, "a", a);
+    XF_NTASK_BEGIN(task, int, a);
+    a = 0;
     while (1) {
-        xf_await(test(task, 1));
-        printf("hello ntask\n");
+        a++;
+        printf("a:%d\n", a);
+        xf_await(test(task));
+        printf("a:%d\n", a);
     }
 
     XF_NTASK_END();

@@ -21,7 +21,7 @@ function add_port()
 end
 
 -- 模板化添加示例工程
-function add_target(name) 
+function add_target(name)
     target(name)
         set_kind("binary")
         add_cflags("-Wall")
@@ -30,16 +30,10 @@ function add_target(name)
         add_xf_task()
         add_cflags("-O0")
         add_port()
-end 
+end
 
-add_target("ctask")
-add_target("ntask")
-add_target("ttask")
-add_target("task")
-add_target("priority")
-add_target("urgent")
-add_target("hunger")
-add_target("ctask_queue")
-add_target("trigger")
-add_target("mbus")
-add_target("task_pool")
+-- 扫描example目录下的文件夹名
+for _, dir in ipairs(os.dirs("example/*")) do
+    local name = path.basename(dir)
+    add_target(name)
+end

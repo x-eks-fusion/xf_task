@@ -1,4 +1,43 @@
-# xf_task 协作式任务调度器
+<h1 align="center" style="font-size: 3.5em;line-height: 1;">
+    <span style="background: linear-gradient(to right, #3b50f2, #521e79);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">XF_TASK</span>
+</h1>
+
+<h4 align="center" style="font-size: 1.2em; line-height: 1;">
+    <span style="background: linear-gradient(to right, #ee9ca7, #33b5ff); -webkit-background-clip: text;-webkit-text-fill-color: transparent;font-weight: bold;">轻量级、跨平台、组件式的协作式任务调度器</span>
+</h4>
+
+<p align="center" style="font-weight: bold;">
+	<a href="https://coral-zone.cc/#/document?path=/document/zh_CN/insight/xf_task.html">文档中心</a>
+    ·
+	<a href="http://qa.coral-zone.cc/">问答中心</a>
+    ·
+	<a href="https://www.coral-zone.cc/#/document?path=/document/zh_CN/contribute/">贡献指南</a>
+    ·
+	<a href="https://github.com/x-eks-fusion/xf_task">GitHub</a>
+    ·
+	<a href="https://gitee.com/x-eks-fusion/xf_task">Gitee</a>
+</p>
+
+<p align="center">
+    <a href="https://github.com/x-eks-fusion/xf_task/graphs/contributors">
+        <img alt="contributors" src="https://img.shields.io/github/contributors/x-eks-fusion/xf_task.svg?style=flat-square" />
+    </a>
+    <a href="https://github.com/x-eks-fusion/xf_task/network/members">
+        <img alt="forks" src="https://img.shields.io/github/forks/x-eks-fusion/xf_task.svg?style=flat-square" />
+    </a>
+    <a href="https://github.com/x-eks-fusion/xf_task/stargazers">
+        <img alt="stars" src="https://img.shields.io/github/stars/x-eks-fusion/xf_task.svg?style=flat-square" />
+    </a>
+    <a href="https://github.com/x-eks-fusion/xf_task/issues">
+        <img alt="issues" src="https://img.shields.io/github/issues/x-eks-fusion/xf_task.svg?style=flat-square" />
+    </a>
+    <a href="https://github.com/x-eks-fusion/xf_task/pulls">
+        <img alt="pulls" src="https://img.shields.io/github/issues-pr/x-eks-fusion/xf_task.svg?style=flat-square" />
+    </a>
+    <a href="https://github.com/x-eks-fusion/xf_task/blob/main/LICENSE">
+        <img alt="license" src="https://img.shields.io/github/license/x-eks-fusion/xf_task.svg?style=flat-square" />
+    </a>
+</p>
 
 ## 介绍 xf_task
 
@@ -17,8 +56,9 @@
 7. 支持紧急任务
 8. 支持任务饥饿值机制
 9. 支持 mbus 发布订阅机制
-10. 支持任务池机制
-11. 仅依赖 xf_utils ，支持 c99
+10. 支持事件等待机制
+11. 支持任务池机制
+12. 仅依赖 xf_utils ，支持 c99
 
 ### 开源地址
 
@@ -33,6 +73,7 @@
 ├── example
 │  ├── ctask            # 使用 ctask 例程
 │  ├── ctask_queue      # 使用 ctask 专属超时消息队列例程
+│  ├── event            # 事件等待例程
 │  ├── hunger           # 任务饥饿值例程
 │  ├── mbus             # mbus 消息发布订阅例程
 │  ├── ttask            # 基础 ttask 定时器任务例程

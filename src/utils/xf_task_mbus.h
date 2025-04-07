@@ -19,6 +19,7 @@
 #if XF_TASK_MBUS_IS_ENABLE
 
 #include "xf_utils.h"
+#include "../kernel/xf_task_kernel.h"
 
 /**
  * @cond XFAPI_USER
@@ -50,13 +51,14 @@ typedef void (*xf_task_mbus_func_t)(const void *const data, void *user_data);
 /**
  * @brief 注册 topic。
  *
+ * @param manager 需要注册的 task manager。
  * @param topic_id 需要注册的 topic id。
  * @param size topic 传输数据大小。
  * @return xf_err_t
  *      - XF_ERR_INITED topic 已经被初始化
  *      - XF_OK topic 注册成功
  */
-xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size);
+xf_err_t xf_task_mbus_reg_topic_with_manager(xf_task_manager_t *manager, uint32_t topic_id, uint32_t size);
 
 /**
  * @brief 注销 topic

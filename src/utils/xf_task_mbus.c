@@ -21,15 +21,16 @@
 
 /* ==================== [Typedefs] ========================================== */
 
-typedef struct _xf_task_xtopic_t {
+typedef struct _xf_task_mtopic_t {
     xf_list_t node;
     xf_list_t sub_list;         // 订阅链表
-    xf_task_queue_t pub_queue;  // 发布链表，有缓存有限用缓存，没缓存则创建
+    xf_task_queue_t pub_queue;  // 发布队列
     uint32_t id;                // topic id
     uint32_t size;              // topic发布消息大小
+    xf_task_t async_task;
 } xf_task_mtopic_t;
 
-typedef struct _xf_task_xsub_t {
+typedef struct _xf_task_msub_t {
     xf_list_t node;
     xf_task_mbus_func_t mbus_cb; // 订阅回调
     void *user_data;             // 用户订阅回调参数
@@ -53,7 +54,7 @@ static xf_task_t _mbus_task = NULL;
 
 /* ==================== [Global Functions] ================================== */
 
-xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size)
+xf_err_t xf_task_mbus_reg_topic_with_manager(xf_task_manager_t *manager, uint32_t topic_id, uint32_t size)
 {
     XF_ASSERT(xf_task_mbus_find(topic_id, NULL), XF_ERR_INITED, TAG, "topic:%d is exists", (int)topic_id);
 
@@ -66,11 +67,15 @@ xf_err_t xf_task_mbus_reg_topic(uint32_t topic_id, uint32_t size)
         return XF_ERR_NO_MEM;
     }
 
-    if (_mbus_task == NULL)
+    mtopic->async_task = xf_ttask_create_loop_with_manager(manager, mbus_task, mtopic, 0, 0);
+    if (mtopic->async_task == NULL)
     {
-        _mbus_task = xf_ttask_create_loop(mbus_task, NULL, 0, 0);
+        xf_free(mtopic);
+        XF_LOGE(TAG, "memory alloc failed!");
+        return XF_ERR_NO_MEM;
     }
     
+
     xf_list_init(&mtopic->node);
     xf_list_init(&mtopic->sub_list);
     xf_task_queue_init(&mtopic->pub_queue, buf, size, DEFAULT_QUEUE_COUNT);
@@ -95,6 +100,7 @@ xf_err_t xf_task_mbus_unreg_topic(uint32_t topic_id)
         xf_list_del_init(&msub->node);
         xf_free(msub);
     }
+    xf_task_delete(mtopic->async_task);
     xf_list_del_init(&mtopic->node);
     xf_free(mtopic);
 
@@ -116,7 +122,7 @@ xf_err_t xf_task_mbus_pub_async(uint32_t topic_id, void *data)
     }
 
     xf_err_t err = xf_task_queue_send(&mtopic->pub_queue, data, XF_TASK_QUEUE_SEND_TO_BACK);
-    xf_task_trigger(_mbus_task);
+    xf_task_trigger(mtopic->async_task);
     return err;
 }
 
@@ -148,6 +154,7 @@ xf_err_t xf_task_mbus_sub(uint32_t topic_id, xf_task_mbus_func_t mbus_cb, void *
         return XF_ERR_NOT_FOUND;
     }
 
+    // 防止重复注册
     xf_list_for_each_entry(msub, &mtopic->sub_list, xf_task_msub_t, node) {
         if (msub->mbus_cb == mbus_cb) {
             XF_LOGD(TAG, "mbus_cb is exists!");
@@ -243,14 +250,12 @@ static xf_err_t xf_task_mbus_find(uint32_t topic_id, xf_task_mtopic_t **topic)
 
 static void mbus_task(xf_task_t task)
 {
-    // 循环执行订阅回调
-    xf_task_mtopic_t *mtopic;
-    xf_list_for_each_entry(mtopic, &_topic_list, xf_task_mtopic_t, node) {
-        while (!xf_task_queue_is_empty(&mtopic->pub_queue)) {
-            void *pub_data = xf_task_queue_peek(&mtopic->pub_queue);
-            xf_task_mbus_run(mtopic, pub_data);
-            xf_task_queue_remove_front(&mtopic->pub_queue);
-        }
+    xf_task_mtopic_t *mtopic = xf_task_get_arg(task);
+
+    while (!xf_task_queue_is_empty(&mtopic->pub_queue)) {
+        void *pub_data = xf_task_queue_peek(&mtopic->pub_queue);
+        xf_task_mbus_run(mtopic, pub_data);
+        xf_task_queue_remove_front(&mtopic->pub_queue);
     }
 }
 

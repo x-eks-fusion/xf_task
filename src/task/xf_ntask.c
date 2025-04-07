@@ -26,7 +26,6 @@ typedef struct _xf_ntask_args_t {
     xf_list_t node;
     void *args;
     unsigned int size;
-    unsigned int len;
     const char *name;
 } xf_ntask_args_t;
 
@@ -51,9 +50,6 @@ static xf_task_time_t xf_ntask_update(xf_task_t task);
 static void xf_ntask_exec(xf_task_manager_t manager);
 static xf_task_t xf_ntask_constructor(xf_task_manager_t manager, xf_task_func_t func, void *func_arg, uint16_t priority,
                                       void *config);
-static void *xf_ntask_args_create(xf_list_t *head, const char *name, unsigned int size, unsigned int len);
-static void *xf_ntask_args_find(xf_list_t *head, const char *name);
-static xf_err_t xf_ntask_args_set(xf_list_t *head, const char *name, void *args);
 static xf_ntask_lc_t *xf_ntask_lc_find(xf_list_t *head, const char *name);
 static xf_ntask_lc_t *xf_ntask_lc_create(xf_list_t *head, const char *name);
 static void xf_ntask_args_remove_all(xf_list_t *head);
@@ -84,92 +80,76 @@ void xf_ntask_set_compare(xf_task_t task, xf_ntask_compare_func_t compare)
     handle->compare = compare;
 }
 
-int xf_ntask_args_get_int(xf_task_t *task, const char *name)
+void *xf_ntask_args_create(xf_task_t task, const char *name, unsigned int size)
 {
     xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
-
-    void *args = xf_ntask_args_find(&handle->args_list, name);
-
-    return *(int *)args;
-}
-
-float xf_ntask_args_get_float(xf_task_t *task, const char *name)
-{
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
-
-    void *args = xf_ntask_args_find(&handle->args_list, name);
-
-    return *(float *)args;
-}
-
-void *xf_ntask_args_get_array(xf_task_t *task, const char *name)
-{
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
-
-    void *args = xf_ntask_args_find(&handle->args_list, name);
-
-    return args;
-}
-
-xf_err_t xf_ntask_args_set_int(xf_task_t *task, const char *name, int value)
-{
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
-
-    xf_err_t err = xf_ntask_args_set(&handle->args_list, name, (void *)&value);
-
-    if (err == XF_OK) {
-        return XF_OK;
-    }
-
-    void *args = xf_ntask_args_create(&handle->args_list, name, sizeof(int), 1);
-
+    xf_list_t *head = &handle->args_list;
+    xf_ntask_args_t *args = (xf_ntask_args_t *)xf_malloc(sizeof(xf_ntask_args_t) + size);
     if (args == NULL) {
-        return XF_ERR_NO_MEM;
+        return NULL;
+    }
+    args->args = (void *)((uint8_t *)args + sizeof(xf_ntask_args_t));
+    args->name = name;
+    args->size = size;
+    xf_list_init(&args->node);
+
+    xf_list_add_tail(&args->node, head);
+
+    return args->args;
+}
+
+void *xf_ntask_args_find(xf_task_t task, const char *name)
+{
+    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
+    xf_list_t *head = &handle->args_list;
+    xf_ntask_args_t *item;
+    xf_list_for_each_entry(item, head, xf_ntask_args_t, node) {
+        if (item->name == name) {
+            return item->args;
+        }
+    }
+    xf_list_for_each_entry(item, head, xf_ntask_args_t, node) {
+        if (xf_strcmp(item->name, name) == 0) {
+            return item->args;
+        }
+    }
+    return NULL;
+}
+
+xf_err_t xf_ntask_stack_load(xf_task_t task, const char *name, xf_ntask_stack_t *stack, uint32_t len)
+{
+    if (len == 0) {
+        return XF_ERR_INVALID_ARG;
     }
 
-    *(int *)args = value;
+    void *item = xf_ntask_args_find(task, name);
+    if (item == NULL) {
+        return XF_ERR_INVALID_ARG;
+    }
+    uint32_t addr_offset = 0;
+    for (size_t i = 0; i < len; i++) {
+        xf_memcpy(stack[i].addr, (uint8_t *)item + addr_offset, stack[i].size);
+        addr_offset += stack[i].size;
+    }
 
     return XF_OK;
 }
 
-xf_err_t xf_ntask_args_set_float(xf_task_t *task, const char *name, float value)
+xf_err_t xf_ntask_stack_save(xf_task_t task, const char *name, xf_ntask_stack_t *stack, uint32_t len)
 {
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
-
-    xf_err_t err = xf_ntask_args_set(&handle->args_list, name, (void *)&value);
-
-    if (err == XF_OK) {
-        return XF_OK;
+    if (len == 0) {
+        return XF_ERR_INVALID_ARG;
     }
 
-    void *args = xf_ntask_args_create(&handle->args_list, name, sizeof(float), 1);
-
-    if (args == NULL) {
-        return XF_ERR_NO_MEM;
+    void *item = xf_ntask_args_find(task, name);
+    if (item == NULL) {
+        return XF_ERR_INVALID_ARG;
     }
-
-    *(float *)args = value;
-
-    return XF_OK;
-}
-
-xf_err_t xf_ntask_args_set_array(xf_task_t *task, const char *name, void *value, unsigned int size, unsigned int len)
-{
-    xf_ntask_handle_t *handle = (xf_ntask_handle_t *)task;
-
-    xf_err_t err = xf_ntask_args_set(&handle->args_list, name, value);
-
-    if (err == XF_OK) {
-        return XF_OK;
+    uint32_t addr_offset = 0;
+    for (size_t i = 0; i < len; i++) {
+        xf_memcpy((uint8_t *)item + addr_offset, stack[i].addr, stack[i].size);
+        addr_offset += stack[i].size;
     }
-
-    void *args = xf_ntask_args_create(&handle->args_list, name, size, len);
-
-    if (args == NULL) {
-        return XF_ERR_NO_MEM;
-    }
-
-    xf_memcpy(args, value, size * len);
 
     return XF_OK;
 }
@@ -328,51 +308,6 @@ static void xf_ntask_exec(xf_task_manager_t manager)
         xf_task_delete(task);
     }
     task->status = XF_NTASK_NONE;
-}
-
-static void *xf_ntask_args_create(xf_list_t *head, const char *name, unsigned int size, unsigned int len)
-{
-    xf_ntask_args_t *args = (xf_ntask_args_t *)xf_malloc(sizeof(xf_ntask_args_t) + size * len);
-    if (args == NULL) {
-        return NULL;
-    }
-    args->args = (void *)((uint8_t *)args + sizeof(xf_ntask_args_t));
-    args->name = name;
-    args->size = size;
-    args->len = len;
-    xf_list_init(&args->node);
-
-    xf_list_add_tail(&args->node, head);
-
-    return args->args;
-}
-
-static void *xf_ntask_args_find(xf_list_t *head, const char *name)
-{
-    xf_ntask_args_t *item;
-    xf_list_for_each_entry(item, head, xf_ntask_args_t, node) {
-        if (item->name == name) {
-            return item->args;
-        }
-    }
-    xf_list_for_each_entry(item, head, xf_ntask_args_t, node) {
-        if (xf_strcmp(item->name, name) == 0) {
-            return item->args;
-        }
-    }
-    return NULL;
-}
-
-static xf_err_t xf_ntask_args_set(xf_list_t *head, const char *name, void *args)
-{
-    xf_ntask_args_t *item = xf_ntask_args_find(head, name);
-    if (item == NULL) {
-        return XF_ERR_INVALID_ARG;
-    }
-
-    xf_memcpy(item->args, args, item->size * item->len);
-
-    return XF_OK;
 }
 
 static void xf_ntask_args_remove_all(xf_list_t *head)
