@@ -5,15 +5,17 @@
 xf_task_manager_t *manager = NULL;
 xf_task_event_t event = xf_event_init(event);
 
-#define TASK1_EVENT 1 << 0 | 1 << 2
-#define TASK2_EVENT 1 << 1
+enum {
+    TASK_EVENT1 = 1 << 0,
+    TASK_EVENT2 = 1 << 1,
+};
 
 static void task1(xf_task_t task)
 {
     // 获取任务参数
     while (1) {
         printf("task1 waiting for event\n");
-        xf_ctask_event_wait_or(event, task, TASK1_EVENT, 0xfffffff);
+        xf_ctask_event_wait_or(event, task, TASK_EVENT1|TASK_EVENT2, 0xfffffff);
         printf("task1 get event\n");
     }
 }
@@ -23,7 +25,7 @@ static void task2(xf_task_t task)
     XF_NTASK_BEGIN(task);
     while (1) {
         printf("task2 waiting for event\n");
-        xf_ntask_event_wait_or(event, task, TASK1_EVENT, 0xfffffff);
+        xf_ntask_event_wait_and(event, task, TASK_EVENT1|TASK_EVENT2, 0xfffffff);
         printf("task2 get event\n");
     }
 
@@ -33,7 +35,8 @@ static void task2(xf_task_t task)
 static void task(xf_task_t task)
 {
     static int num = 1;
-    xf_task_event_sent(&event, num);
+    printf("event send %d\n", num);
+    xf_task_event_send(&event, num);
     num++;
 }
 
@@ -48,9 +51,9 @@ int main()
     xf_task_manager_default_init(task_on_idle);
 
     // 创建任务
-    xf_ctask_create(task1, (void *)1, 1, 1024 * 8);
-    xf_ntask_create(task2, (void *)1, 1);
-    xf_ttask_create_loop(task, (void *)2, 1, 1000);
+    xf_ctask_create(task1, NULL, 1, 1024 * 8);
+    xf_ntask_create(task2, NULL, 1);
+    xf_ttask_create_loop(task, NULL, 1, 1000);
 
     // 启动任务管理器
     while (1) {

@@ -74,7 +74,7 @@ xf_err_t xf_task_event_unreg(xf_task_event_t *event, xf_task_t task)
 }
 
 
-xf_err_t xf_task_event_sent(xf_task_event_t *event, uint32_t event_value)
+xf_err_t xf_task_event_send(xf_task_event_t *event, uint32_t event_value)
 {
     XF_ASSERT(event, XF_ERR_INVALID_ARG, TAG, "event must not be NULL");
 
