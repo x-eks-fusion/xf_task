@@ -82,7 +82,7 @@ xf_err_t xf_task_event_sent(xf_task_event_t *event, uint32_t event_value)
     xf_list_for_each_entry(sub, &event->event_list, xf_task_event_sub_t, node) {
         switch (sub->mode) {
         case XF_TASK_EVENT_OR:
-            if ((sub->event | event_value) == sub->event) {
+            if ((sub->event & event_value) >  0) {
                 xf_task_trigger(sub->task);
             }
             break;
