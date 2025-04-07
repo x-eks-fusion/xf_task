@@ -45,6 +45,7 @@ static void mbus_task(xf_task_t task);
 /* ==================== [Static Variables] ================================== */
 
 static xf_list_t _topic_list = XF_LIST_HEAD_INIT(_topic_list);
+static xf_task_t _mbus_task = NULL;
 
 /* ==================== [Macros] ============================================ */
 
@@ -102,6 +103,9 @@ xf_err_t xf_task_mbus_unreg_topic(uint32_t topic_id)
     xf_task_delete(mtopic->async_task);
     xf_list_del_init(&mtopic->node);
     xf_free(mtopic);
+
+    xf_task_delete(_mbus_task);
+    _mbus_task = NULL;
 
     return XF_OK;
 }
